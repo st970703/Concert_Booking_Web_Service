@@ -69,7 +69,7 @@ public class BookingDTO {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (!(obj instanceof SeatDTO))
+		if (!(obj instanceof BookingDTO))
 			return false;
 		if (obj == this)
 			return true;
