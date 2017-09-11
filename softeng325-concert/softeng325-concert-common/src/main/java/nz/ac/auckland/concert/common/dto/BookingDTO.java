@@ -12,7 +12,7 @@ import nz.ac.auckland.concert.common.types.PriceBand;
 
 /**
  * DTO class to represent bookings (confirmed reservations). 
- * 
+ *
  * A BookingDTO describes a booking in terms of:
  * _concertId      the unique identifier for a concert.
  * _concertTitle   the concert's title.
@@ -36,7 +36,7 @@ public class BookingDTO {
 	}
 
 	public BookingDTO(Long concertId, String concertTitle,
-			LocalDateTime dateTime, Set<SeatDTO> seats, PriceBand priceBand) {
+					  LocalDateTime dateTime, Set<SeatDTO> seats, PriceBand priceBand) {
 		_concertId = concertId;
 		_concertTitle = concertTitle;
 		_dateTime = dateTime;
@@ -69,7 +69,7 @@ public class BookingDTO {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (!(obj instanceof SeatDTO))
+		if (!(obj instanceof BookingDTO))
 			return false;
 		if (obj == this)
 			return true;
