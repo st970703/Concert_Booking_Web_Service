@@ -3,8 +3,10 @@ package nz.ac.auckland.concert.service.domain;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import javax.persistence.Embeddable;
 import java.time.LocalDate;
 
+@Embeddable
 public class CreditCard {
 
 	public enum Type {Visa, Master};

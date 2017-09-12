@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 @Entity
-@XmlRootElement
+@XmlRootElement(name = "concert")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Concert {
 	@Id
@@ -24,14 +24,18 @@ public class Concert {
 	@Column(nullable = false, name = "TITLE")
 	private String _title;
 
-	@Column
+	@ElementCollection
+	@Column(name = "DATE")
 	@Convert(converter = LocalDateTimeConverter.class)
 	private Set<LocalDateTime> _dates;
 
-
+	@ElementCollection
+	@MapKeyColumn(name = "TICKET_PRICE")
 	private Map<PriceBand, BigDecimal> _tariff;
 
-
+	@ElementCollection
+	@Column(name = "PERFORMER_ID")
+	@ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
 	private Set<Long> _performerIds;
 
 	public Concert() {

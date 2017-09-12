@@ -25,7 +25,6 @@ import nz.ac.auckland.concert.common.types.PriceBand;
  *
  */
 public class BookingDTO {
-
 	private Long _concertId;
 	private String _concertTitle;
 	private LocalDateTime _dateTime;

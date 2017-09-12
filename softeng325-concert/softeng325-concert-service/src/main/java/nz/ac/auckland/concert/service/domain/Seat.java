@@ -5,9 +5,26 @@ import nz.ac.auckland.concert.common.types.SeatRow;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-public class Seat {
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
 
+@Entity
+@XmlRootElement(name = "seat")
+@XmlAccessorType(XmlAccessType.FIELD)
+public class Seat {
+	@Id
+	@GeneratedValue
+	private Long _seatId;
+
+	@Column(nullable = false, name = "ROW")
 	private SeatRow _row;
+
+	@Column(nullable = false, name = "NUMBER")
 	private SeatNumber _number;
 
 	public Seat() {}
