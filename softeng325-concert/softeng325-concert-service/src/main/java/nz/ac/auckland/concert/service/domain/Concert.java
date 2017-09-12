@@ -9,6 +9,7 @@ import javax.persistence.*;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -16,7 +17,7 @@ import java.util.*;
 @Entity
 @XmlRootElement(name = "concert")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class Concert {
+public class Concert implements Serializable {
 	@Id
 	@GeneratedValue
 	private Long _id;
