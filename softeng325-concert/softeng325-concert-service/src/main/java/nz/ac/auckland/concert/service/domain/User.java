@@ -16,10 +16,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class User {
 	@Id
-	@GeneratedValue
-	private Long _userId;
-
-	@Column(nullable = false, name = "USERNAME")
 	private String _username;
 
 	@Column(nullable = false, name = "PASSWORD")
