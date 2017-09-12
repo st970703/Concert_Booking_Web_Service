@@ -25,17 +25,19 @@ public class Concert {
 	private String _title;
 
 	@ElementCollection
-	@Column(name = "DATE")
 	@Convert(converter = LocalDateTimeConverter.class)
 	private Set<LocalDateTime> _dates;
 
 	@ElementCollection
-	@MapKeyColumn(name = "TICKET_PRICE")
+	@MapKeyColumn( name = "PRICEBAND" )
 	private Map<PriceBand, BigDecimal> _tariff;
 
 	@Column(name = "PERFORMER_ID")
-	@OneToMany(mappedBy= "concert", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+	@ManyToMany(mappedBy= "concert", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
 	private Set<Long> _performerIds;
+
+	@OneToMany(mappedBy="concert", cascade = {CascadeType.PERSIST,CascadeType.REMOVE})
+	private Set<Booking> _bookings;
 
 	public Concert() {
 	}
