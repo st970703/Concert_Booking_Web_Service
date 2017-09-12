@@ -10,15 +10,15 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.time.LocalDateTime;
 
+@Entity
 @XmlRootElement(name = "newsItem")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class NewsItem {
-
 	@Id
 	@GeneratedValue
 	private Long _id;
 
-	@Column
+	@Column(nullable = false, name = "TIMESTAMP")
 	@Convert(converter = LocalDateTimeConverter.class)
 	private LocalDateTime _timestamp;
 

@@ -29,7 +29,7 @@ public class Performer {
 	@Enumerated
 	private Genre _genre;
 
-	@ElementCollection
+	@OneToMany(mappedBy = "performer", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
 	@Column(name = "CONCERT_ID")
 	private Set<Long> _concertIds;
 

@@ -17,17 +17,17 @@ import javax.persistence.*;
 public class Booking {
 
 	@ManyToOne
-	@JoinColumn(name = "CONCERT_ID")
+	@JoinColumn(name = "CONCERT_ID", nullable = false)
 	private Long _concertId;
 
 	@Column(nullable = false, name = "ConcertTitle")
 	private String _concertTitle;
 
-	@Column
+	@Column(nullable = false)
 	@Convert(converter = LocalDateTimeConverter.class)
 	private LocalDateTime _dateTime;
 
-	@ElementCollection
+	@OneToMany( mappedBy = "booking", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
 	private Set<Seat> _seats;
 
 	@Enumerated

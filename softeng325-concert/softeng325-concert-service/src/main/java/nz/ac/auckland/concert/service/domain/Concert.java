@@ -33,9 +33,8 @@ public class Concert {
 	@MapKeyColumn(name = "TICKET_PRICE")
 	private Map<PriceBand, BigDecimal> _tariff;
 
-	@ElementCollection
 	@Column(name = "PERFORMER_ID")
-	@ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+	@OneToMany(mappedBy= "concert", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
 	private Set<Long> _performerIds;
 
 	public Concert() {

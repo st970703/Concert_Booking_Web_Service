@@ -6,7 +6,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-
+/*
 @Embeddable
 public class ReservationRequest {
 
@@ -19,7 +19,6 @@ public class ReservationRequest {
 	@ManyToOne
 	@JoinColumn(name = "CONCERT_ID")
 	private Long _concertId;
-
 
 	private LocalDateTime _date;
 
@@ -74,3 +73,4 @@ public class ReservationRequest {
 				hashCode();
 	}
 }
+*/

@@ -1,19 +1,30 @@
 package nz.ac.auckland.concert.service.domain;
 
+import nz.ac.auckland.concert.service.domain.jpa.LocalDateTimeConverter;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Embeddable;
+import javax.persistence.Enumerated;
 import java.time.LocalDate;
 
 @Embeddable
 public class CreditCard {
-
 	public enum Type {Visa, Master};
 
+	@Enumerated
 	private CreditCard.Type _type;
+
+	@Column(nullable = false, name = "NAME")
 	private String _name;
+
+	@Column(nullable = false, name = "NUMBER")
 	private String _number;
+
+	@Column(nullable = false, name = "EXPIRY_DATE")
+	@Convert(converter = LocalDateTimeConverter.class)
 	private LocalDate _expiryDate;
 
 	public CreditCard() {}
