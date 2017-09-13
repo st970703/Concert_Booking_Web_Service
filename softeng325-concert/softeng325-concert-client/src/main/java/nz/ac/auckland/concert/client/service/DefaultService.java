@@ -1,32 +1,24 @@
 package nz.ac.auckland.concert.client.service;
 
-import java.awt.Image;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicLong;
-
-import nz.ac.auckland.concert.common.dto.BookingDTO;
-import nz.ac.auckland.concert.common.dto.ConcertDTO;
-import nz.ac.auckland.concert.common.dto.CreditCardDTO;
-import nz.ac.auckland.concert.common.dto.PerformerDTO;
-import nz.ac.auckland.concert.common.dto.ReservationDTO;
-import nz.ac.auckland.concert.common.dto.ReservationRequestDTO;
-import nz.ac.auckland.concert.common.dto.UserDTO;
-import nz.ac.auckland.concert.service.services.ConcertResource;
+import nz.ac.auckland.concert.common.dto.*;
 import nz.ac.auckland.concert.service.services.PersistenceManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.persistence.EntityManager;
 import javax.ws.rs.*;
+import java.awt.*;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_XML;
+
+//import nz.ac.auckland.concert.service.services.ConcertResource;
 
 @Path("/concerts")
 @Produces({APPLICATION_XML})
 public class DefaultService implements ConcertService {
 
-	private static Logger _logger = LoggerFactory
-			.getLogger(ConcertResource.class);
+//	private static Logger _logger = LoggerFactory
+//			.getLogger(ConcertResource.class);
 
 	// Declare necessary instance variables.
 	private AtomicLong _idCounter = new AtomicLong();
