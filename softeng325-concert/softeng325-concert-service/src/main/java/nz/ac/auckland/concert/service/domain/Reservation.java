@@ -23,37 +23,24 @@ public class Reservation {
 	@JoinColumn(nullable = false)
 	private Concert _concert;
 
-	@Column(nullable = false)
-	@Convert(converter = LocalDateTimeConverter.class)
-	private LocalDateTime _date;
-
 	@OneToMany(mappedBy= "reservation")
 	@Column(nullable = false)
 	private Set<Seat> _seats;
-
-	@ManyToOne
-	@JoinColumn
-	private Concert concert;
 
 	@Column(nullable = false)
 	private boolean _confirmed;
 
 	public Reservation() {}
 
-	public Reservation(PriceBand seatType, Concert concert, LocalDateTime date, Set<Seat> seats, boolean confirmed) {
+	public Reservation(PriceBand seatType, Concert concert, Set<Seat> seats) {
 		_seatType = seatType;
 		_concert = concert;
-		_date = date;
 		_seats = seats;
-		_confirmed = confirmed;
+		_confirmed = false;
 	}
 
 	public PriceBand getSeatType() {
 		return _seatType;
-	}
-
-	public LocalDateTime getDate() {
-		return _date;
 	}
 
 	public Long getId() {
@@ -74,7 +61,6 @@ public class Reservation {
 		Reservation rhs = (Reservation) obj;
 		return new EqualsBuilder().
 				append(_seatType, rhs._seatType).
-				append(_date, rhs._date).
 				append(_seats, rhs._seats).
 				isEquals();
 	}
@@ -83,7 +69,6 @@ public class Reservation {
 	public int hashCode() {
 		return new HashCodeBuilder(17, 31).
 				append(_seatType).
-				append(_date).
 				append(_seats).
 				hashCode();
 	}

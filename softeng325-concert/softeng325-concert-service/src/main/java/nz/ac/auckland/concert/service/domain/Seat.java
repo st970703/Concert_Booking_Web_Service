@@ -5,16 +5,20 @@ import nz.ac.auckland.concert.common.types.SeatRow;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 public class Seat {
+
+	public enum Availability {Reserved, Booked, Available};
+
 	@Id
 	@GeneratedValue
 	private Long _id;
+
+	@ManyToOne
+	@Column(nullable = false)
+	private Concert _concert;
 
 	@Column(nullable = false)
 	private SeatRow _row;
@@ -24,9 +28,10 @@ public class Seat {
 
 	public Seat() {}
 
-	public Seat(SeatRow row, SeatNumber number) {
+	public Seat(SeatRow row, SeatNumber number, Concert concert) {
 		_row = row;
 		_number = number;
+		_concert = concert;
 	}
 
 	public SeatRow getRow() {

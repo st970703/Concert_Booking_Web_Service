@@ -34,7 +34,7 @@ public class Performer {
 		return _concerts;
 	}
 
-	@ManyToMany
+	@ManyToMany(mappedBy = "_performers")
 	@Column(nullable = false)
 	private Set<Concert> _concerts;
 

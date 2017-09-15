@@ -22,6 +22,10 @@ public class Concert {
 
 	@ElementCollection
 	@Convert(converter = LocalDateTimeConverter.class)
+	@CollectionTable(
+			name = "CONCERT_DATES",
+			joinColumns = @JoinColumn(name = "CONCERT_ID")
+	)
 	private Set<LocalDateTime> _dates;
 
 	public Map<PriceBand, BigDecimal> getTicketPrices() {
@@ -33,7 +37,12 @@ public class Concert {
 	private Map<PriceBand, BigDecimal> _tariff;
 
 	@Column(nullable = false)
-	@ManyToMany(mappedBy= "performers")
+	@ManyToMany(mappedBy= "performers", cascade = {CascadeType.PERSIST})
+	@JoinTable(
+			name = "CONCERT_PERFORMER",
+			joinColumns = @JoinColumn(name = "CONCERT_ID"),
+			inverseJoinColumns = @JoinColumn(name = "PERFORMER_ID")
+	)
 	private Set<Performer> _performers;
 
 	public Concert() {

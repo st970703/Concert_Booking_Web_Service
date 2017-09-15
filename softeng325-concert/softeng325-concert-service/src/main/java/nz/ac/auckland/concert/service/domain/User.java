@@ -24,6 +24,7 @@ public class User {
 	private CreditCard _cCard;
 
 	@OneToMany
+	@JoinColumn(name = "RESERVATION_ID")
 	private Set<Reservation> _reservations;
 
 	protected User() {}
