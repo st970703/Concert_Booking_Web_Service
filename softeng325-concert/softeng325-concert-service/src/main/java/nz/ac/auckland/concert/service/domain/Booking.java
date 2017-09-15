@@ -3,6 +3,7 @@ package nz.ac.auckland.concert.service.domain;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import nz.ac.auckland.concert.service.domain.jpa.LocalDateTimeConverter;
@@ -15,6 +16,9 @@ import javax.persistence.*;
 
 @Embeddable
 public class Booking {
+	private Long _id;
+
+	private Map<PriceBand, Set<Seat>> bookedSeats;
 
 	@ManyToOne
 	@JoinColumn(name = "CONCERT_ID", nullable = false)
@@ -46,6 +50,10 @@ public class Booking {
 		_seats.addAll(seats);
 
 		_priceBand = priceBand;
+	}
+
+	public Long getId() {
+		return _id;
 	}
 
 	public Long getConcertId() {

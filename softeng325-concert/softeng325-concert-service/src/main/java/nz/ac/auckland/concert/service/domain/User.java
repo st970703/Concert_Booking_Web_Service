@@ -3,41 +3,42 @@ package nz.ac.auckland.concert.service.domain;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.persistence.*;
+import java.util.Set;
 
 @Entity
-@XmlRootElement(name = "user")
-@XmlAccessorType(XmlAccessType.FIELD)
 public class User {
 	@Id
 	private String _username;
 
-	@Column(nullable = false, name = "PASSWORD")
+	@Column(nullable = false)
 	private String _password;
 
-	@Column(nullable = false, name = "FIRST_NAME")
+	@Column(nullable = false)
 	private String _firstname;
 
-	@Column(nullable = false, name = "LAST_NAME")
+	@Column(nullable = false)
 	private String _lastname;
+
+	@OneToOne(mappedBy = "user")
+	private CreditCard _cCard;
+
+	@OneToMany
+	private Set<Reservation> _reservations;
 
 	protected User() {}
 
-	public User(String username, String password, String lastname, String firstname) {
+	public User(String username, String password, String lastname, String firstname, CreditCard cCard, Set<Reservation> reservations) {
 		_username = username;
 		_password = password;
 		_lastname = lastname;
 		_firstname = firstname;
+		_cCard = cCard;
+		_reservations = reservations;
 	}
 
 	public User(String username, String password) {
-		this(username, password, null, null);
+		this(username, password, null, null, null, null);
 	}
 
 	public String getUsername() {

@@ -6,50 +6,46 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import javax.persistence.*;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Entity
-@XmlRootElement(name = "concert")
-@XmlAccessorType(XmlAccessType.FIELD)
-public class Concert implements Serializable {
+public class Concert {
 	@Id
 	@GeneratedValue
 	private Long _id;
 
-	@Column(nullable = false, name = "TITLE")
+	@Column(nullable = false)
 	private String _title;
 
 	@ElementCollection
 	@Convert(converter = LocalDateTimeConverter.class)
 	private Set<LocalDateTime> _dates;
 
+	public Map<PriceBand, BigDecimal> getTicketPrices() {
+		return _tariff;
+	}
+
 	@ElementCollection
-	@MapKeyColumn( name = "PRICEBAND" )
+	@MapKeyColumn
 	private Map<PriceBand, BigDecimal> _tariff;
 
-	@Column(name = "PERFORMER_ID")
-	@ManyToMany(mappedBy= "concert", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
-	private Set<Long> _performerIds;
-
-	@OneToMany(mappedBy="concert", cascade = {CascadeType.PERSIST,CascadeType.REMOVE})
-	private Set<Booking> _bookings;
+	@Column(nullable = false)
+	@ManyToMany(mappedBy= "performers")
+	private Set<Performer> _performers;
 
 	public Concert() {
 	}
 
 	public Concert(Long id, String title, Set<LocalDateTime> dates,
-					  Map<PriceBand, BigDecimal> ticketPrices, Set<Long> performerIds) {
+					  Map<PriceBand, BigDecimal> ticketPrices, Set<Performer> performers) {
 		_id = id;
 		_title = title;
 		_dates = new HashSet<LocalDateTime>(dates);
 		_tariff = new HashMap<PriceBand, BigDecimal>(ticketPrices);
-		_performerIds = new HashSet<Long>(performerIds);
+		_performers = new HashSet<Performer>(performers);
 	}
 
 	public Long getId() {
@@ -68,10 +64,6 @@ public class Concert implements Serializable {
 		return _tariff.get(seatType);
 	}
 
-	public Set<Long> getPerformerIds() {
-		return Collections.unmodifiableSet(_performerIds);
-	}
-
 	@Override
 	public boolean equals(Object obj) {
 		if (!(obj instanceof Concert))
@@ -84,7 +76,7 @@ public class Concert implements Serializable {
 				append(_title, rhs._title).
 				append(_dates, rhs._dates).
 				append(_tariff, rhs._tariff).
-				append(_performerIds, rhs._performerIds).
+				append(_performers, rhs._performers).
 				isEquals();
 	}
 
@@ -94,7 +86,20 @@ public class Concert implements Serializable {
 				append(_title).
 				append(_dates).
 				append(_tariff).
-				append(_performerIds).
+				append(_performers).
 				hashCode();
+	}
+
+	public Set<Performer> getPerformers() {
+		return _performers;
+	}
+
+	public Set<Long> getPerformerIds() {
+		Set<Long> result = _performers
+				.stream()
+				.map(performer -> performer.getId())
+				.collect(Collectors.toSet());
+
+		return result;
 	}
 }

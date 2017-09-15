@@ -17,13 +17,13 @@ public class CreditCard {
 	@Enumerated
 	private CreditCard.Type _type;
 
-	@Column(nullable = false, name = "NAME")
+	@Column(nullable = false)
 	private String _name;
 
-	@Column(nullable = false, name = "NUMBER")
+	@Column(nullable = false)
 	private String _number;
 
-	@Column(nullable = false, name = "EXPIRY_DATE")
+	@Column(nullable = false)
 	@Convert(converter = LocalDateTimeConverter.class)
 	private LocalDate _expiryDate;
 

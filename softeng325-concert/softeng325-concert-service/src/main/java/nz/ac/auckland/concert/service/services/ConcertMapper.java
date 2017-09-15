@@ -12,21 +12,8 @@ import java.util.Map;
  *
  */
 public class ConcertMapper {
+
 	private static Map<PriceBand, BigDecimal> ticketPrices;
-
-	static nz.ac.auckland.concert.service.domain.Concert toDomainModel(nz.ac.auckland.concert.common.dto.ConcertDTO concertDTO) {
-		populateHM();
-
-		Concert fullConcert = new Concert(
-				concertDTO.getId(),
-				concertDTO.getTitle(),
-				concertDTO.getDates(),
-				ticketPrices,
-				concertDTO.getPerformerIds()
-		);
-
-		return fullConcert;
-	}
 
 	static nz.ac.auckland.concert.common.dto.ConcertDTO toDto(nz.ac.auckland.concert.service.domain.Concert concert) {
 		populateHM();
@@ -35,7 +22,7 @@ public class ConcertMapper {
 				concert.getId(),
 				concert.getTitle(),
 				concert.getDates(),
-				ticketPrices,
+				concert.getTicketPrices(),
 				concert.getPerformerIds()
 		);
 

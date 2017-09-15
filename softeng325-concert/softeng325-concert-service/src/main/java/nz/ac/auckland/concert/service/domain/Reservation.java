@@ -1,42 +1,63 @@
 package nz.ac.auckland.concert.service.domain;
 
+import nz.ac.auckland.concert.common.types.PriceBand;
+import nz.ac.auckland.concert.service.domain.jpa.LocalDateTimeConverter;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import javax.persistence.*;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
+import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 
-/*
+@Entity
 public class Reservation {
 	@Id
 	@GeneratedValue
 	private Long _id;
 
-	@Column(nullable = false, name = "RESERVATION_REQUEST")
-	private ReservationRequest _request;
+	@Enumerated
+	PriceBand _seatType;
 
-	@ElementCollection
+	@ManyToOne
+	@JoinColumn(nullable = false)
+	private Concert _concert;
+
+	@Column(nullable = false)
+	@Convert(converter = LocalDateTimeConverter.class)
+	private LocalDateTime _date;
+
+	@OneToMany(mappedBy= "reservation")
+	@Column(nullable = false)
 	private Set<Seat> _seats;
+
+	@ManyToOne
+	@JoinColumn
+	private Concert concert;
+
+	@Column(nullable = false)
+	private boolean _confirmed;
 
 	public Reservation() {}
 
-	public Reservation(Long id, ReservationRequest request, Set<Seat> seats) {
-		_id = id;
-		_request = request;
-		_seats = new HashSet<Seat>(seats);
+	public Reservation(PriceBand seatType, Concert concert, LocalDateTime date, Set<Seat> seats, boolean confirmed) {
+		_seatType = seatType;
+		_concert = concert;
+		_date = date;
+		_seats = seats;
+		_confirmed = confirmed;
+	}
+
+	public PriceBand getSeatType() {
+		return _seatType;
+	}
+
+	public LocalDateTime getDate() {
+		return _date;
 	}
 
 	public Long getId() {
 		return _id;
-	}
-
-	public ReservationRequest getReservationRequest() {
-		return _request;
 	}
 
 	public Set<Seat> getSeats() {
@@ -52,7 +73,8 @@ public class Reservation {
 
 		Reservation rhs = (Reservation) obj;
 		return new EqualsBuilder().
-				append(_request, rhs._request).
+				append(_seatType, rhs._seatType).
+				append(_date, rhs._date).
 				append(_seats, rhs._seats).
 				isEquals();
 	}
@@ -60,9 +82,10 @@ public class Reservation {
 	@Override
 	public int hashCode() {
 		return new HashCodeBuilder(17, 31).
-				append(_request).
+				append(_seatType).
+				append(_date).
 				append(_seats).
 				hashCode();
 	}
 }
-*/
+

@@ -5,42 +5,47 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import javax.persistence.*;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
-@XmlRootElement(name = "performer")
-@XmlAccessorType(XmlAccessType.FIELD)
 public class Performer {
 	@Id
 	@GeneratedValue
 	private Long _id;
 
-	@Column(nullable = false, name = "NAME")
+	@Column(nullable = false)
 	private String _name;
 
-	@Column(nullable = false, name = "IMAGE_NAME")
+	@Column(nullable = false)
 	private String _imageName;
 
+	public Genre getGenre() {
+		return _genre;
+	}
+
 	@Enumerated
+	@Column(nullable = false)
 	private Genre _genre;
 
-	@ManyToMany(mappedBy = "performer", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
-	@Column(name = "CONCERT_ID")
-	private Set<Long> _concertIds;
+	public Set<Concert> getConcerts() {
+		return _concerts;
+	}
+
+	@ManyToMany
+	@Column(nullable = false)
+	private Set<Concert> _concerts;
 
 	public Performer() {}
 
-	public Performer(Long id, String name, String imageName, Genre genre, Set<Long> concertIds) {
+	public Performer(Long id, String name, String imageName, Genre genre, Set<Concert> concerts) {
 		_id = id;
 		_name = name;
 		_imageName = imageName;
 		_genre = genre;
-		_concertIds = new HashSet<Long>(concertIds);
+		_concerts = new HashSet<Concert>(concerts);
 	}
 
 	public Long getId() {
@@ -55,10 +60,6 @@ public class Performer {
 		return _imageName;
 	}
 
-	public Set<Long> getConcertIds() {
-		return Collections.unmodifiableSet(_concertIds);
-	}
-
 	@Override
 	public boolean equals(Object obj) {
 		if (!(obj instanceof Performer))
@@ -71,7 +72,7 @@ public class Performer {
 				append(_name, rhs._name).
 				append(_imageName, rhs._imageName).
 				append(_genre, rhs._genre).
-				append(_concertIds, rhs._concertIds).
+				append(_concerts, rhs._concerts).
 				isEquals();
 	}
 
@@ -81,7 +82,16 @@ public class Performer {
 				append(_name).
 				append(_imageName).
 				append(_genre).
-				append(_concertIds).
+				append(_concerts).
 				hashCode();
+	}
+
+	public Set<Long> getConcertIds() {
+		Set<Long> result = _concerts
+				.stream()
+				.map(concert -> concert.getId())
+				.collect(Collectors.toSet());
+
+		return result;
 	}
 }
