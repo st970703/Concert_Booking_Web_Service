@@ -12,10 +12,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Entity
-public class Concert {
+@Table
+public class Concert implements Comparable<Concert> {
 	@Id
 	@GeneratedValue
-	private Long _id;
+	@Column( nullable = false)
+	private Long _cId;
 
 	@Column(nullable = false)
 	private String _title;
@@ -23,9 +25,9 @@ public class Concert {
 	@ElementCollection
 	@Convert(converter = LocalDateTimeConverter.class)
 	@CollectionTable(
-			name = "CONCERT_DATES",
-			joinColumns = @JoinColumn(name = "CONCERT_ID")
+			joinColumns = @JoinColumn(name = "_cId")
 	)
+	@Column(nullable = false)
 	private Set<LocalDateTime> _dates;
 
 	public Map<PriceBand, BigDecimal> getTicketPrices() {
@@ -33,15 +35,19 @@ public class Concert {
 	}
 
 	@ElementCollection
-	@MapKeyColumn
+	@CollectionTable(joinColumns = @JoinColumn(name = "TARIFF"))
+	@MapKeyColumn( name = "PRICEBAND")
+	@MapKeyClass(PriceBand.class)
+	@MapKeyEnumerated(EnumType.STRING)
+	@Column
 	private Map<PriceBand, BigDecimal> _tariff;
 
 	@Column(nullable = false)
 	@ManyToMany(mappedBy= "performers", cascade = {CascadeType.PERSIST})
 	@JoinTable(
 			name = "CONCERT_PERFORMER",
-			joinColumns = @JoinColumn(name = "CONCERT_ID"),
-			inverseJoinColumns = @JoinColumn(name = "PERFORMER_ID")
+			joinColumns = @JoinColumn(name = "C_ID"),
+			inverseJoinColumns = @JoinColumn(name = "P_ID")
 	)
 	private Set<Performer> _performers;
 
@@ -50,7 +56,7 @@ public class Concert {
 
 	public Concert(Long id, String title, Set<LocalDateTime> dates,
 					  Map<PriceBand, BigDecimal> ticketPrices, Set<Performer> performers) {
-		_id = id;
+		_cId = id;
 		_title = title;
 		_dates = new HashSet<LocalDateTime>(dates);
 		_tariff = new HashMap<PriceBand, BigDecimal>(ticketPrices);
@@ -58,7 +64,7 @@ public class Concert {
 	}
 
 	public Long getId() {
-		return _id;
+		return _cId;
 	}
 
 	public String getTitle() {
@@ -111,4 +117,30 @@ public class Concert {
 
 		return result;
 	}
+
+	@Override
+	public String toString() {
+		//todo
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("Concert, id: ");
+		buffer.append(_cId);
+		buffer.append(", title: ");
+		buffer.append(_title);
+		buffer.append(", date: ");
+		buffer.append(_dates.toString());
+		buffer.append(", featuring: ");
+		for (Performer performer: _performers) {
+			buffer.append(performer.getName()+", ");
+		}
+
+		return buffer.toString();
+	}
+
+	@Override
+	public int compareTo(Concert concert) {
+		return _title.compareTo(concert.getTitle());
+	}
+
+	//helper
+
 }

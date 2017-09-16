@@ -5,16 +5,17 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import javax.persistence.*;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Entity
+@Table
 public class Performer {
 	@Id
 	@GeneratedValue
-	private Long _id;
+	@Column( nullable = false)
+	private Long _pId;
 
 	@Column(nullable = false)
 	private String _name;
@@ -26,7 +27,7 @@ public class Performer {
 		return _genre;
 	}
 
-	@Enumerated
+	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private Genre _genre;
 
@@ -41,15 +42,23 @@ public class Performer {
 	public Performer() {}
 
 	public Performer(Long id, String name, String imageName, Genre genre, Set<Concert> concerts) {
-		_id = id;
+		_pId = id;
 		_name = name;
 		_imageName = imageName;
 		_genre = genre;
 		_concerts = new HashSet<Concert>(concerts);
 	}
 
+	public Performer(Long id, String name, String imageName, Genre genre) {
+		this(id, name, imageName, genre, null);
+	}
+
+	public Performer(String name, String imageName, Genre genre) {
+		this(null, name, imageName, genre, null);
+	}
+
 	public Long getId() {
-		return _id;
+		return _pId;
 	}
 
 	public String getName() {
@@ -74,6 +83,22 @@ public class Performer {
 				append(_genre, rhs._genre).
 				append(_concerts, rhs._concerts).
 				isEquals();
+	}
+
+	@Override
+	public String toString() {
+		StringBuffer buffer = new StringBuffer();
+
+		buffer.append("Performer, id: ")
+				.append(_pId)
+				.append(", name: ")
+				.append(_name)
+				.append(", s3 image: ")
+				.append(_imageName)
+				.append(", genre: ")
+				.append(_genre.toString());
+
+		return buffer.toString();
 	}
 
 	@Override

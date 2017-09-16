@@ -30,6 +30,10 @@ public class Reservation {
 	@Column(nullable = false)
 	private boolean _confirmed;
 
+	public Concert getConcert() {
+		return _concert;
+	}
+
 	public Reservation() {}
 
 	public Reservation(PriceBand seatType, Concert concert, Set<Seat> seats) {

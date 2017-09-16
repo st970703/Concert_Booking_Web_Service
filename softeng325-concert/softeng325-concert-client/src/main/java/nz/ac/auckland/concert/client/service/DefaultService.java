@@ -31,7 +31,8 @@ public class DefaultService implements ConcertService {
 	@Path("{id}")
 	@Produces({APPLICATION_XML})
 	public Set<ConcertDTO> getConcerts() throws ServiceException {
-		// TODO Auto-generated method stub
+
+
 		return null;
 	}
 

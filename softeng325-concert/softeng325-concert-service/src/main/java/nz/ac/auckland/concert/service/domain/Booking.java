@@ -22,27 +22,27 @@ public class Booking {
 
 	@ManyToOne
 	@JoinColumn(name = "CONCERT_ID", nullable = false)
-	private Long _concertId;
+	private Concert _concert;
 
-	@Column(nullable = false, name = "ConcertTitle")
+	@Column(nullable = false)
 	private String _concertTitle;
 
 	@Column(nullable = false)
 	@Convert(converter = LocalDateTimeConverter.class)
 	private LocalDateTime _dateTime;
 
-	@OneToMany( mappedBy = "booking", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+	@OneToMany( mappedBy = "booking", cascade = {CascadeType.PERSIST})
 	private Set<Seat> _seats;
 
-	@Enumerated
+	@Enumerated(EnumType.STRING)
 	private PriceBand _priceBand;
 
 	public Booking() {
 	}
 
-	public Booking(Long concertId, String concertTitle,
+	public Booking(Concert concert, String concertTitle,
 				   LocalDateTime dateTime, Set<Seat> seats, PriceBand priceBand) {
-		_concertId = concertId;
+		_concert = concert;
 		_concertTitle = concertTitle;
 		_dateTime = dateTime;
 
@@ -56,8 +56,8 @@ public class Booking {
 		return _id;
 	}
 
-	public Long getConcertId() {
-		return _concertId;
+	public Concert getConcert() {
+		return _concert;
 	}
 
 	public String getConcertTitle() {
@@ -84,7 +84,8 @@ public class Booking {
 			return true;
 
 		Booking rhs = (Booking) obj;
-		return new EqualsBuilder().append(_concertId, rhs._concertId)
+		return new EqualsBuilder()
+				.append(_concert.getId(), rhs._concert.getId())
 				.append(_concertTitle, rhs._concertTitle)
 				.append(_dateTime, rhs._dateTime)
 				.append(_seats, rhs._seats)
@@ -93,7 +94,8 @@ public class Booking {
 
 	@Override
 	public int hashCode() {
-		return new HashCodeBuilder(17, 31).append(_concertId)
+		return new HashCodeBuilder(17, 31)
+				.append(_concert.getId())
 				.append(_concertTitle).append(_dateTime).append(_seats)
 				.append(_priceBand).hashCode();
 	}
