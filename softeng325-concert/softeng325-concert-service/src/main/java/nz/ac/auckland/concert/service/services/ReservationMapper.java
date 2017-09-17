@@ -30,7 +30,6 @@ public class ReservationMapper {
 				reservation.getSeats().size(),
 				reservation.getSeatType(),
 				reservation.getConcert().getId(),
-				//localdatetime
 				//todo
 				concert.getDates().iterator().next()
 		);
@@ -58,12 +57,17 @@ public class ReservationMapper {
 			seats.add(SeatMapper.toDomainModel(sDto));
 		}
 
+		//concert id to concert obj
+		PersistenceManager pManager = PersistenceManager.instance();
+		EntityManager eManager = pManager.createEntityManager();
+		eManager.getTransaction().begin();
+		TypedQuery<Concert> concertQuery = eManager.createQuery("select c from Concert c where c.id = :id", Concert.class);
+		Concert concert = concertQuery.getSingleResult( );
+
 		nz.ac.auckland.concert.service.domain.Reservation reservation = new Reservation(
-//				rDto.getReservationRequest().getSeatType(),
-//
-//				rDto.getReservationRequest().getConcertId(),
-//
-//				seats
+				rDto.getReservationRequest().getSeatType(),
+				concert,
+				seats
 		);
 
 		return reservation;

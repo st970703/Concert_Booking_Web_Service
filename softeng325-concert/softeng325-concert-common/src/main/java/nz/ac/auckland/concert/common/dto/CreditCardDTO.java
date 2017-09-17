@@ -35,7 +35,7 @@ public class CreditCardDTO {
 	
 	public Type getType() {
 		return _type;
-	}
+	}z
 	
 	public String getName() {
 		return _name;
