@@ -82,6 +82,8 @@ public class ConcertResource {
 		TypedQuery<Concert> concertQuery = eManager.createQuery("select c from Concert c", Concert.class);
 		List<Concert> concerts = concertQuery.getResultList();
 
+		eManager.getTransaction().commit();
+		
 		if (concerts == null) {
 			builder.status(Response.Status.NOT_FOUND);
 			throw new WebApplicationException(Response.Status.NOT_FOUND);
@@ -117,6 +119,8 @@ public class ConcertResource {
 		TypedQuery<Performer> performertQuery = eManager.createQuery("select p from Performer p", Performer.class);
 		List<Performer> performers = performertQuery.getResultList();
 
+		eManager.getTransaction().commit();
+		
 		if (performers == null) {
 			builder.status(Response.Status.NOT_FOUND);
 			throw new WebApplicationException(Response.Status.NOT_FOUND);

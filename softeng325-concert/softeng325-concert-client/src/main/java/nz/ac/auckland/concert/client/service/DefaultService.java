@@ -30,7 +30,6 @@ public class DefaultService implements ConcertService {
 
 	@Override
 	public Set<ConcertDTO> getConcerts() throws ServiceException {
-
 		Response response = _client
 				.target(WEB_SERVICE_URI+"/resources/concerts/")
 				.request()
@@ -49,18 +48,18 @@ public class DefaultService implements ConcertService {
 
 	@Override
 	public Set<PerformerDTO> getPerformers() throws ServiceException {
-		Builder builder = _client
-				.target(WEB_SERVICE_URI + "/allPerformers")
+		Response response = _client
+				.target(WEB_SERVICE_URI+"/resources/performers/")
 				.request()
-				.accept(MediaType.APPLICATION_XML);
+				.get();
 
-		Response response = builder.get();
+		Set<PerformerDTO> pDtos = new HashSet<>(
+				response.readEntity(
+						new GenericType<
+						Set<nz.ac.auckland.concert.common.dto.PerformerDTO>>() {
+				}));
 
-		int responseCode = response.getStatus();
-
-		Set<PerformerDTO> pDtos = response
-				.readEntity(new GenericType<Set<nz.ac.auckland.concert.common.dto.PerformerDTO>>() {
-				});
+		response.close();
 
 		return pDtos;
 	}
