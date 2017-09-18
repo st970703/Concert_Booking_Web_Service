@@ -13,28 +13,33 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import nz.ac.auckland.concert.common.types.PriceBand;
 
 import javax.persistence.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 
 @Embeddable
 public class Booking {
-	private Long _id;
-
-	private Map<PriceBand, Set<Seat>> bookedSeats;
+	//private Long _id;
+	@ElementCollection
+	@MapKeyColumn( name = "SEAT" )
+	private Map<PriceBand, Set<Seat>> _bookedSeats;
 
 	@ManyToOne
-	@JoinColumn(name = "CONCERT_ID", nullable = false)
+	@JoinColumn(name = "CONCERT", nullable = false)
 	private Concert _concert;
 
-	@Column(nullable = false)
+	@Column(nullable = false, name = "CONCERT_TITLE")
 	private String _concertTitle;
 
-	@Column(nullable = false)
+	@Column(nullable = false, name = "DATE")
 	@Convert(converter = LocalDateTimeConverter.class)
 	private LocalDateTime _dateTime;
 
 	@OneToMany( mappedBy = "booking", cascade = {CascadeType.PERSIST})
+	@Column(nullable = false, name = "SEAT")
 	private Set<Seat> _seats;
 
 	@Enumerated(EnumType.STRING)
+	@Column(name = "PRICE_BAND")
 	private PriceBand _priceBand;
 
 	public Booking() {
@@ -52,9 +57,9 @@ public class Booking {
 		_priceBand = priceBand;
 	}
 
-	public Long getId() {
-		return _id;
-	}
+//	public Long getId() {
+//		return _id;
+//	}
 
 	public Concert getConcert() {
 		return _concert;

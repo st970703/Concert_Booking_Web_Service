@@ -6,6 +6,8 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import javax.persistence.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 
 @Entity
 public class Seat {
@@ -17,13 +19,12 @@ public class Seat {
 	private Long _id;
 
 	@ManyToOne
-	@Column(nullable = false)
 	private Concert _concert;
 
-	@Column(nullable = false)
+	@Column(nullable = false, name = "ROW")
 	private SeatRow _row;
 
-	@Column(nullable = false)
+	@Column(nullable = false, name = "NUMBER")
 	private SeatNumber _number;
 
 	public Seat() {}

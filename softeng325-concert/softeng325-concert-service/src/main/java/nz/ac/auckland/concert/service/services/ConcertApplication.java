@@ -1,6 +1,7 @@
 package nz.ac.auckland.concert.service.services;
 
 import javax.persistence.EntityManager;
+import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 import java.util.HashSet;
 import java.util.Set;
@@ -11,6 +12,7 @@ import java.util.Set;
  *
  *
  */
+@ApplicationPath("/services")
 public class ConcertApplication extends Application {
 
 	// This property should be used by your Resource class. It represents the 
@@ -27,32 +29,32 @@ public class ConcertApplication extends Application {
 
 		EntityManager em = null;
 
-		try {
-			em = PersistenceManager.instance().createEntityManager();
-			em.getTransaction().begin();
-
-			// Delete all existing entities of some type, e. g. MyEntity.
-			em.createQuery("delete  from MyEntity").executeUpdate();
-
-			// Make many entities of some type.
-//			for (...) {
-//				for (...) {
-//					Object e = new MyEntity(...);
-//					em. persist (e);
-//				}
-//				// Periodically flush and clear the persistence context.
-				em.flush ();
-				em.clear ();
+//		try {
+//			em = PersistenceManager.instance().createEntityManager();
+//			em.getTransaction().begin();
+//
+//			// Delete all existing entities of some type, e. g. MyEntity.
+//			em.createQuery("delete  from MyEntity").executeUpdate();
+//
+//			// Make many entities of some type.
+////			for (...) {
+////				for (...) {
+////					Object e = new MyEntity(...);
+////					em. persist (e);
+////				}
+////				// Periodically flush and clear the persistence context.
+//				em.flush ();
+//				em.clear ();
+////			}
+//			em.getTransaction (). commit();
+//
+//		} catch(Exception e) {
+//			// Process and log the exception .
+//		} finally {
+//			if (em != null && em.isOpen()) {
+//				em.close ();
 //			}
-			em.getTransaction (). commit();
-
-		} catch(Exception e) {
-			// Process and log the exception .
-		} finally {
-			if (em != null && em.isOpen()) {
-				em.close ();
-			}
-		}
+//		}
 	}
 
 	private Set<Object> _singletons = new HashSet<Object>();

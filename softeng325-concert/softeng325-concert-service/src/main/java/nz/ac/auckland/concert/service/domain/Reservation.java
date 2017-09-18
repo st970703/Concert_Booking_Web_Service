@@ -6,6 +6,8 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import javax.persistence.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Set;
@@ -17,17 +19,18 @@ public class Reservation {
 	private Long _id;
 
 	@Enumerated
+	@Column(name = "SEAT_TYPE")
 	PriceBand _seatType;
 
 	@ManyToOne
-	@JoinColumn(nullable = false)
+	@JoinColumn(nullable = false, name = "CONCERT")
 	private Concert _concert;
 
-	@OneToMany(mappedBy= "reservation")
-	@Column(nullable = false)
+	@OneToMany
+	@Column(nullable = false, name = "SEAT")
 	private Set<Seat> _seats;
 
-	@Column(nullable = false)
+	@Column(nullable = false, name = "CONFIRMED")
 	private boolean _confirmed;
 
 	public Concert getConcert() {

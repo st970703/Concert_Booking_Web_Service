@@ -15,15 +15,16 @@ public class CreditCard {
 	public enum Type {Visa, Master};
 
 	@Enumerated
+	@Column(name = "TYPE")
 	private CreditCard.Type _type;
 
-	@Column(nullable = false)
+	@Column(nullable = false, name = "NAME")
 	private String _name;
 
-	@Column(nullable = false)
+	@Column(nullable = false , name = "NUMBER")
 	private String _number;
 
-	@Column(nullable = false)
+	@Column(nullable = false, name = "EXPIRY_DATE")
 	@Convert(converter = LocalDateTimeConverter.class)
 	private LocalDate _expiryDate;
 

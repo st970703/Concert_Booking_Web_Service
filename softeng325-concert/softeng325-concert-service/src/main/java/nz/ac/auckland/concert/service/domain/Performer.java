@@ -5,38 +5,30 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import javax.persistence.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Entity
-@Table
+@Table(name = "PERFORMERS")
 public class Performer {
 	@Id
 	@GeneratedValue
-	@Column( nullable = false)
 	private Long _pId;
 
-	@Column(nullable = false)
+	@Column(nullable = false, name = "NAME")
 	private String _name;
 
-	@Column(nullable = false)
+	@Column(nullable = false, name = "IMAGE_NAME" )
 	private String _imageName;
 
-	public Genre getGenre() {
-		return _genre;
-	}
-
 	@Enumerated(EnumType.STRING)
-	@Column(nullable = false)
 	private Genre _genre;
 
-	public Set<Concert> getConcerts() {
-		return _concerts;
-	}
-
 	@ManyToMany(mappedBy = "_performers")
-	@Column(nullable = false)
 	private Set<Concert> _concerts;
 
 	public Performer() {}
@@ -55,6 +47,14 @@ public class Performer {
 
 	public Performer(String name, String imageName, Genre genre) {
 		this(null, name, imageName, genre, null);
+	}
+
+	public Set<Concert> getConcerts() {
+		return _concerts;
+	}
+
+	public Genre getGenre() {
+		return _genre;
 	}
 
 	public Long getId() {
@@ -107,7 +107,6 @@ public class Performer {
 				append(_name).
 				append(_imageName).
 				append(_genre).
-				append(_concerts).
 				hashCode();
 	}
 

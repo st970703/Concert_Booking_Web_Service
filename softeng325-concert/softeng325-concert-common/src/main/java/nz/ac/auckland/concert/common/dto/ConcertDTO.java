@@ -6,6 +6,15 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlID;
+import javax.xml.bind.annotation.XmlIDREF;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import java.util.Map;
 
 import nz.ac.auckland.concert.common.types.PriceBand;
@@ -27,12 +36,26 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
  *               (represented as a set of performer identifiers).
  *
  */
-public class ConcertDTO {
 
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
+public class ConcertDTO {
+	@XmlElement
 	private Long _id;
+	
+	@XmlElement
 	private String _title;
+
+	@XmlElement
+	@XmlElementWrapper
 	private Set<LocalDateTime> _dates;
+	
+	@XmlElement
+	@XmlElementWrapper
 	private Map<PriceBand, BigDecimal> _tariff;
+	
+	@XmlElement
+	@XmlElementWrapper
 	private Set<Long> _performerIds;
 
 	public ConcertDTO() {

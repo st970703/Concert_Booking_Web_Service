@@ -6,17 +6,19 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import javax.persistence.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Entity
-@Table
+@Table(name = "CONCERTS")
 public class Concert implements Comparable<Concert> {
 	@Id
 	@GeneratedValue
-	@Column( nullable = false)
 	private Long _cId;
 
 	@Column(nullable = false)
@@ -25,37 +27,36 @@ public class Concert implements Comparable<Concert> {
 	@ElementCollection
 	@Convert(converter = LocalDateTimeConverter.class)
 	@CollectionTable(
-			joinColumns = @JoinColumn(name = "_cId")
-	)
-	@Column(nullable = false)
+			name = "CONCERT_DATES",
+			joinColumns = @JoinColumn(name = "CONCERT")
+			)
 	private Set<LocalDateTime> _dates;
 
-	public Map<PriceBand, BigDecimal> getTicketPrices() {
-		return _tariff;
-	}
-
 	@ElementCollection
-	@CollectionTable(joinColumns = @JoinColumn(name = "TARIFF"))
+	@CollectionTable(name = "CONCERT_TARIFS", joinColumns = @JoinColumn(name = "TARIFF"))
 	@MapKeyColumn( name = "PRICEBAND")
 	@MapKeyClass(PriceBand.class)
 	@MapKeyEnumerated(EnumType.STRING)
-	@Column
+	@Column(name = "TICKET_PRICE")
 	private Map<PriceBand, BigDecimal> _tariff;
 
-	@Column(nullable = false)
-	@ManyToMany(mappedBy= "performers", cascade = {CascadeType.PERSIST})
+	@ManyToMany(cascade = {CascadeType.PERSIST})
 	@JoinTable(
 			name = "CONCERT_PERFORMER",
-			joinColumns = @JoinColumn(name = "C_ID"),
-			inverseJoinColumns = @JoinColumn(name = "P_ID")
-	)
+			joinColumns = @JoinColumn(name = "CONCERT_ID"),
+			inverseJoinColumns = @JoinColumn(name = "PERFORMER_ID")
+			)
 	private Set<Performer> _performers;
 
 	public Concert() {
 	}
 
+	public Map<PriceBand, BigDecimal> getTicketPrices() {
+		return _tariff;
+	}
+
 	public Concert(Long id, String title, Set<LocalDateTime> dates,
-					  Map<PriceBand, BigDecimal> ticketPrices, Set<Performer> performers) {
+			Map<PriceBand, BigDecimal> ticketPrices, Set<Performer> performers) {
 		_cId = id;
 		_title = title;
 		_dates = new HashSet<LocalDateTime>(dates);
@@ -141,6 +142,8 @@ public class Concert implements Comparable<Concert> {
 		return _title.compareTo(concert.getTitle());
 	}
 
-	//helper
+	public Map<PriceBand, BigDecimal> getTariff() {
+		return _tariff;
+	}
 
 }

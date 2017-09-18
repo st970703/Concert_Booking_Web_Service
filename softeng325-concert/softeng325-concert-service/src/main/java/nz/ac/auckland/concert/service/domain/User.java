@@ -4,6 +4,9 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import javax.persistence.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Set;
 
 @Entity
@@ -11,20 +14,19 @@ public class User {
 	@Id
 	private String _username;
 
-	@Column(nullable = false)
+	@Column(nullable = false, name = "PASSWORD")
 	private String _password;
 
-	@Column(nullable = false)
+	@Column(nullable = false, name = "FIRST_NAME")
 	private String _firstname;
 
-	@Column(nullable = false)
+	@Column(nullable = false, name = "LAST_NAME")
 	private String _lastname;
 
-	@OneToOne(mappedBy = "user")
 	private CreditCard _cCard;
 
 	@OneToMany
-	@JoinColumn(name = "RESERVATION_ID")
+	@JoinColumn(name = "RESERVATION")
 	private Set<Reservation> _reservations;
 
 	protected User() {}

@@ -16,13 +16,13 @@ public class ConcertMapper {
 	private static Map<PriceBand, BigDecimal> ticketPrices;
 
 	static nz.ac.auckland.concert.common.dto.ConcertDTO toDto(nz.ac.auckland.concert.service.domain.Concert concert) {
-		populateHM();
+		//populateHM();
 
 		nz.ac.auckland.concert.common.dto.ConcertDTO concertDTO = new ConcertDTO(
 				concert.getId(),
 				concert.getTitle(),
 				concert.getDates(),
-				concert.getTicketPrices(),
+				concert.getTariff(),
 				concert.getPerformerIds()
 		);
 

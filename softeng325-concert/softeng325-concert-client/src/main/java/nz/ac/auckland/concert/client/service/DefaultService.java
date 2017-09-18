@@ -1,90 +1,79 @@
 package nz.ac.auckland.concert.client.service;
 
 import nz.ac.auckland.concert.common.dto.*;
-import nz.ac.auckland.concert.service.domain.Concert;
 import nz.ac.auckland.concert.service.services.PersistenceManager;
-import org.jboss.resteasy.specimpl.ResponseBuilderImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Cookie;
-import javax.ws.rs.core.GenericEntity;
-import javax.ws.rs.core.NewCookie;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation.Builder;
+import javax.ws.rs.core.*;
 import java.awt.*;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static javax.ws.rs.core.MediaType.APPLICATION_XML;
-
-//import nz.ac.auckland.concert.service.services.ConcertResource;
-
-@Path("/concerts")
-@Produces({APPLICATION_XML})
 public class DefaultService implements ConcertService {
 
-//	private static Logger _logger = LoggerFactory
-//			.getLogger(ConcertResource.class);
+	private static Logger _logger = LoggerFactory.getLogger(ConcertService.class);
 
-	// Declare necessary instance variables.
+	private static String WEB_SERVICE_URI = "http://localhost:10000/services";
+
+	private static Client _client = ClientBuilder.newClient();
 	private AtomicLong _idCounter = new AtomicLong();
 
 	private static PersistenceManager pManager = PersistenceManager.instance();
 	private static EntityManager eManager = pManager.createEntityManager();
 
 	@Override
-	@GET
-	@Path("{id}")
-	@Produces({APPLICATION_XML})
 	public Set<ConcertDTO> getConcerts() throws ServiceException {
-		Response.ResponseBuilder builder = new ResponseBuilderImpl();
 
-		eManager.getTransaction().begin();
-		TypedQuery<Concert> concertQuery = eManager.createQuery("select c from Concert c where c.id = :id", Concert.class);
-		java.util.Set<Concert> concerts = new HashSet(concertQuery.getResultList());
-		eManager.getTransaction().commit();
+		Response response = _client
+				.target(WEB_SERVICE_URI+"/resources/concerts/")
+				.request()
+				.get();
 
-if () {
+		Set<ConcertDTO> cDtos = new HashSet<>(
+				response.readEntity(
+						new GenericType<
+						Set<nz.ac.auckland.concert.common.dto.ConcertDTO>>() {
+				}));
 
-}
+		response.close();
 
-		if (clientId == null) {
-			NewCookie newCookie = makeCookie(clientId);
-			builder.cookie(newCookie);
-			builder.status(Response.Status.NOT_FOUND);
-		} else {
-			builder.status(Response.Status.OK);
-		}
-
-		GenericEntity<java.util.List<Concert>> entity = new GenericEntity<List<Concert>>(concerts) {};
-		builder = Response.ok(entity);
-
-		Response response = (Response) builder.build();
-
-		return response;
-
-		return null;
+		return cDtos;
 	}
 
 	@Override
-	@GET
-	@Path("{id}")
-	@Produces({APPLICATION_XML})
 	public Set<PerformerDTO> getPerformers() throws ServiceException {
-		// TODO Auto-generated method stub
-		return null;
+		Builder builder = _client
+				.target(WEB_SERVICE_URI + "/allPerformers")
+				.request()
+				.accept(MediaType.APPLICATION_XML);
+
+		Response response = builder.get();
+
+		int responseCode = response.getStatus();
+
+		Set<PerformerDTO> pDtos = response
+				.readEntity(new GenericType<Set<nz.ac.auckland.concert.common.dto.PerformerDTO>>() {
+				});
+
+		return pDtos;
 	}
 
 	@Override
-	@POST
-	@Consumes({APPLICATION_XML})
+//	@POST
+//	@Consumes({ APPLICATION_XML })
 	public UserDTO createUser(UserDTO newUser) throws ServiceException {
-		// TODO Auto-generated method stub
-		return null;
+		Response response = _client.target(WEB_SERVICE_URI).request().post(Entity.xml(newUser));
+
+		response.close();
+
+		return newUser;
 	}
 
 	@Override
@@ -94,71 +83,58 @@ if () {
 	}
 
 	@Override
-	@GET
-	@Path("{id}")
-	@Produces({APPLICATION_XML})
+//	@GET
+//	@Path("{id}")
+//	@Produces({ APPLICATION_XML })
 	public Image getImageForPerformer(PerformerDTO performer) throws ServiceException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	@POST
-	@Consumes({APPLICATION_XML})
+//	@POST
+//	@Consumes({ APPLICATION_XML })
 	public ReservationDTO reserveSeats(ReservationRequestDTO reservationRequest) throws ServiceException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	@POST
-	@Consumes({APPLICATION_XML})
+//	@POST
+//	@Consumes({ APPLICATION_XML })
 	public void confirmReservation(ReservationDTO reservation) throws ServiceException {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	@POST
-	@Consumes({APPLICATION_XML})
+//	@POST
+//	@Consumes({ APPLICATION_XML })
 	public void registerCreditCard(CreditCardDTO creditCard) throws ServiceException {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	@GET
-	@Path("{id}")
-	@Produces({APPLICATION_XML})
+//	@GET
+//	@Path("{id}")
+//	@Produces({ APPLICATION_XML })
 	public Set<BookingDTO> getBookings() throws ServiceException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	@POST
-	@Consumes({APPLICATION_XML})
+//	@POST
+//	@Consumes({ APPLICATION_XML })
 	public void subscribeForNewsItems(NewsItemListener listener) {
 		throw new UnsupportedOperationException();
 
 	}
 
 	@Override
-	@DELETE
+//	@DELETE
 	public void cancelSubscription() {
 		throw new UnsupportedOperationException();
-	}
-
-
-	//helper
-	private NewCookie makeCookie(@CookieParam("clientId") Cookie clientId){
-		NewCookie newCookie = null;
-
-		if(clientId == null) {
-			newCookie = new NewCookie(Config.CLIENT_COOKIE, UUID.randomUUID().toString());
-			_logger.info("Generated cookie: " + newCookie.getValue());
-		}
-
-		return newCookie;
 	}
 }
