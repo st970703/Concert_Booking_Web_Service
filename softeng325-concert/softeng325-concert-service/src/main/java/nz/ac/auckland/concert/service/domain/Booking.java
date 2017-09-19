@@ -18,7 +18,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 
 @Embeddable
 public class Booking {
-	//private Long _id;
 	@ElementCollection
 	@MapKeyColumn( name = "SEAT" )
 	private Map<PriceBand, Set<Seat>> _bookedSeats;

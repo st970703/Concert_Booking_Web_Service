@@ -4,14 +4,15 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import javax.persistence.*;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Set;
 
 @Entity
 public class User {
 	@Id
+	@GeneratedValue
+	private Long  _uId;
+
+	@Column(nullable = false, name = "USERNAME")
 	private String _username;
 
 	@Column(nullable = false, name = "PASSWORD")
@@ -42,6 +43,14 @@ public class User {
 
 	public User(String username, String password) {
 		this(username, password, null, null, null, null);
+	}
+
+	public Long getId() {
+		return _uId;
+	}
+	
+	public CreditCard getCreditCard() {
+		return _cCard;
 	}
 
 	public String getUsername() {

@@ -6,20 +6,29 @@ import org.slf4j.LoggerFactory;
 
 import nz.ac.auckland.concert.common.dto.ConcertDTO;
 import nz.ac.auckland.concert.common.dto.PerformerDTO;
+import nz.ac.auckland.concert.common.dto.UserDTO;
+import nz.ac.auckland.concert.common.message.Messages;
 import nz.ac.auckland.concert.service.domain.Concert;
 import nz.ac.auckland.concert.service.domain.Performer;
+import nz.ac.auckland.concert.service.domain.User;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.GenericEntity;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
+import javax.ws.rs.core.Response.Status;
 
+import java.lang.reflect.Field;
+import java.net.URI;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -39,41 +48,13 @@ public class ConcertResource {
 	private static Logger _logger = LoggerFactory
 			.getLogger(ConcertResource.class);
 
-	// Declare necessary instance variables.
-	private AtomicLong _idCounter = new AtomicLong();
-
-	private static PersistenceManager pManager = PersistenceManager.instance();
-	private static EntityManager eManager = pManager.createEntityManager();
-
-	//	@GET
-	//	@Path("{id}")
-	//	@Produces({ APPLICATION_XML })
-	//    public Response retrieveConcert(@PathParam("id")long id) {
-	//		 _logger.info("Retrieving concert with id: " + id);
-	//	        ResponseBuilder builder = new ResponseBuilderImpl();
-	//
-	//	        eManager.getTransaction().begin();
-	//	        Object responseObj = eManager.find(Concert.class ,id);
-	//	        eManager.getTransaction().commit();
-	//
-	//	        if (responseObj == null) {
-	//	        	builder.status(Response.Status.NOT_FOUND);
-	//	            throw new WebApplicationException(Response.Status.NOT_FOUND);
-	//	        } else {
-	//	        	builder.status(Response.Status.OK);
-	//	        	_logger.info("Found concert with id: " + id);
-	//	        }
-	//
-	//	        builder.entity((Concert) responseObj);
-	//	        Response response = (Response) builder.build();
-	//
-	//	        return response;
-	//	}
-
 	@GET
 	@Path("/concerts")
 	@Produces({ APPLICATION_XML })
 	public Response retrieveConcerts() {
+		PersistenceManager pManager = PersistenceManager.instance();
+		EntityManager eManager = pManager.createEntityManager();
+		
 		_logger.info("Retrieving all concerts");
 		ResponseBuilder builder = new ResponseBuilderImpl();
 
@@ -83,7 +64,7 @@ public class ConcertResource {
 		List<Concert> concerts = concertQuery.getResultList();
 
 		eManager.getTransaction().commit();
-		
+
 		if (concerts == null) {
 			builder.status(Response.Status.NOT_FOUND);
 			throw new WebApplicationException(Response.Status.NOT_FOUND);
@@ -100,13 +81,15 @@ public class ConcertResource {
 
 		GenericEntity<Set<ConcertDTO>> entity = new GenericEntity<
 				Set<ConcertDTO>>(cDtos) {};
-		builder = Response.ok(entity);
+				builder = Response.ok(entity);
 
-		Response response = (Response) builder.build();
+				Response response = (Response) builder.build();
 
-		return response;
+				eManager.close( );
+
+				return response;
 	}
-	
+
 	@GET
 	@Path("/performers")
 	@Produces({ APPLICATION_XML })
@@ -114,13 +97,15 @@ public class ConcertResource {
 		_logger.info("Retrieving all performers");
 		ResponseBuilder builder = new ResponseBuilderImpl();
 
+		PersistenceManager pManager = PersistenceManager.instance();
+		EntityManager eManager = pManager.createEntityManager();
 		eManager.getTransaction().begin();
 
 		TypedQuery<Performer> performertQuery = eManager.createQuery("select p from Performer p", Performer.class);
 		List<Performer> performers = performertQuery.getResultList();
 
 		eManager.getTransaction().commit();
-		
+
 		if (performers == null) {
 			builder.status(Response.Status.NOT_FOUND);
 			throw new WebApplicationException(Response.Status.NOT_FOUND);
@@ -137,10 +122,85 @@ public class ConcertResource {
 
 		GenericEntity<Set<PerformerDTO>> entity = new GenericEntity<
 				Set<PerformerDTO>>(pDtos) {};
-		builder = Response.ok(entity);
+				builder = Response.ok(entity);
 
-		Response response = (Response) builder.build();
+				Response response = (Response) builder.build();
 
+				eManager.close( );
+				return response;
+	}
+
+	@POST
+	@Path("/users")
+	@Consumes({APPLICATION_XML})
+	@Produces({ APPLICATION_XML })
+	public Response createUser(UserDTO uDto) {
+		_logger.info("Creating User");
+		ResponseBuilder builder = new ResponseBuilderImpl();
+
+		User user = UserMapper.toDomainModel(uDto);
+
+		PersistenceManager pManager = PersistenceManager.instance();
+		EntityManager eManager = pManager.createEntityManager();
+		
+		TypedQuery<User> userQuery = eManager.createQuery("select u from User u where u._id = :id", User.class);
+		List<User> uQuery = userQuery.getResultList();
+
+		//Condition: the supplied username is already taken.
+		if (uQuery.size() > 0) {
+			throw new BadRequestException(
+					Response
+					.status (Status.BAD_REQUEST)
+					.entity (Messages.CREATE_USER_WITH_NON_UNIQUE_NAME)
+					.build ());
+		}
+
+		//Condition: the expected UserDTO attributes are not set.
+		
+		boolean attributesNotSet = false;
+		if (uDto.getFirstname() == null) {
+			attributesNotSet = true;
+		} else if (uDto.getLastname() == null) {
+			attributesNotSet = true;
+		} else if (uDto.getPassword() == null) {
+			attributesNotSet = true;
+		} else if (uDto.getUsername() == null) {
+			attributesNotSet = true;
+		}
+		
+		if (attributesNotSet = true) {
+			throw new BadRequestException(
+			Response
+			.status (Status.BAD_REQUEST)
+			.entity (Messages.CREATE_USER_WITH_NON_UNIQUE_NAME)
+			.build ());
+		}
+//		Field[] fields = uDto.getClass().getDeclaredFields();
+//		for (Field field: fields) {
+//			if (field == null) {
+//				throw new BadRequestException(
+//						Response
+//						.status (Status.BAD_REQUEST)
+//						.entity (Messages.CREATE_USER_WITH_NON_UNIQUE_NAME)
+//						.build ());
+//			}
+//		}
+		
+		eManager.getTransaction().begin();
+		eManager.persist(user);
+		eManager.getTransaction().commit();
+
+		builder.status(201);
+
+		Response response = Response
+				.created(URI.create("/resources/users/" + user.getId()))
+				.build();
+
+		builder = Response.ok(uDto);
+
+		response = (Response) builder.build();
+
+		eManager.close( );
 		return response;
 	}
 }
