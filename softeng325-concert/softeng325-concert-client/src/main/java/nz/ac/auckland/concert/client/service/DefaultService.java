@@ -22,7 +22,7 @@ public class DefaultService implements ConcertService {
 
 	private static String WEB_SERVICE_URI = "http://localhost:10000/services";
 
-	private static Client _client = ClientBuilder.newClient();
+	//private static Client _client = ClientBuilder.newClient();
 	private AtomicLong _idCounter = new AtomicLong();
 
 	private static PersistenceManager pManager = PersistenceManager.instance();
@@ -30,7 +30,9 @@ public class DefaultService implements ConcertService {
 
 	@Override
 	public Set<ConcertDTO> getConcerts() throws ServiceException {
-		Response response = _client
+		Client client = ClientBuilder.newClient();
+
+		Response response = client
 				.target(WEB_SERVICE_URI+"/resources/concerts/")
 				.request()
 				.get();
@@ -39,16 +41,19 @@ public class DefaultService implements ConcertService {
 				response.readEntity(
 						new GenericType<
 						Set<nz.ac.auckland.concert.common.dto.ConcertDTO>>() {
-				}));
+						}));
 
 		response.close();
+		client.close();
 
 		return cDtos;
 	}
 
 	@Override
 	public Set<PerformerDTO> getPerformers() throws ServiceException {
-		Response response = _client
+		Client client = ClientBuilder.newClient();
+		
+		Response response = client
 				.target(WEB_SERVICE_URI+"/resources/performers/")
 				.request()
 				.get();
@@ -57,20 +62,21 @@ public class DefaultService implements ConcertService {
 				response.readEntity(
 						new GenericType<
 						Set<nz.ac.auckland.concert.common.dto.PerformerDTO>>() {
-				}));
+						}));
 
 		response.close();
+		client.close();
 
 		return pDtos;
 	}
 
 	@Override
-//	@POST
-//	@Consumes({ APPLICATION_XML })
 	public UserDTO createUser(UserDTO newUser) throws ServiceException {
-		Response response = _client.target(WEB_SERVICE_URI).request().post(Entity.xml(newUser));
+		Client client = ClientBuilder.newClient();
+		Response response = client.target(WEB_SERVICE_URI).request().post(Entity.xml(newUser));
 
 		response.close();
+		client.close();
 
 		return newUser;
 	}
@@ -82,57 +88,57 @@ public class DefaultService implements ConcertService {
 	}
 
 	@Override
-//	@GET
-//	@Path("{id}")
-//	@Produces({ APPLICATION_XML })
+	//	@GET
+	//	@Path("{id}")
+	//	@Produces({ APPLICATION_XML })
 	public Image getImageForPerformer(PerformerDTO performer) throws ServiceException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-//	@POST
-//	@Consumes({ APPLICATION_XML })
+	//	@POST
+	//	@Consumes({ APPLICATION_XML })
 	public ReservationDTO reserveSeats(ReservationRequestDTO reservationRequest) throws ServiceException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-//	@POST
-//	@Consumes({ APPLICATION_XML })
+	//	@POST
+	//	@Consumes({ APPLICATION_XML })
 	public void confirmReservation(ReservationDTO reservation) throws ServiceException {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-//	@POST
-//	@Consumes({ APPLICATION_XML })
+	//	@POST
+	//	@Consumes({ APPLICATION_XML })
 	public void registerCreditCard(CreditCardDTO creditCard) throws ServiceException {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-//	@GET
-//	@Path("{id}")
-//	@Produces({ APPLICATION_XML })
+	//	@GET
+	//	@Path("{id}")
+	//	@Produces({ APPLICATION_XML })
 	public Set<BookingDTO> getBookings() throws ServiceException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-//	@POST
-//	@Consumes({ APPLICATION_XML })
+	//	@POST
+	//	@Consumes({ APPLICATION_XML })
 	public void subscribeForNewsItems(NewsItemListener listener) {
 		throw new UnsupportedOperationException();
 
 	}
 
 	@Override
-//	@DELETE
+	//	@DELETE
 	public void cancelSubscription() {
 		throw new UnsupportedOperationException();
 	}
