@@ -18,6 +18,7 @@ import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.CookieParam;
 import javax.ws.rs.GET;
+import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -208,13 +209,25 @@ public class ConcertResource {
 				.setParameter("uName", uDto.getUsername());;
 				List<User> uQuery = userQuery.getResultList();
 
-				//Condition: the remote service doesn't have a record of a user with the
-				//specified username.
-				if (uQuery.size() != 0) {
-					throw new BadRequestException(
+				/*Condition: the UserDTO parameter doesn't have values for username and/or
+				password.*/
+				if (uDto.getPassword() == null
+						|| uDto.getUsername() == null
+						) {
+					throw new NotAuthorizedException(
 							Response
-							.status (Status.BAD_REQUEST)
-							.entity (Messages.CREATE_USER_WITH_NON_UNIQUE_NAME)
+							.status (Status.UNAUTHORIZED)
+							.entity (Messages.AUTHENTICATE_USER_WITH_MISSING_FIELDS)
+							.build ());
+				}
+
+				/*Condition: the remote service doesn't have a record of a user with the
+				specified username.*/
+				if (uQuery.size() == 0) {
+					throw new NotAuthorizedException(
+							Response
+							.status (Status.UNAUTHORIZED)
+							.entity (Messages.AUTHENTICATE_NON_EXISTENT_USER)
 							.build ());
 				}
 
