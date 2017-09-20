@@ -80,11 +80,6 @@ public class DefaultService implements ConcertService {
 		// Get the response code from the Response object.
 		int responseCode = response.getStatus ();
 
-		/*
-		 * Process the response. If the response code is 400/401, expect the
-		 * Response's entity to be a string error message. For other
-		response codes, the entity might be a DTO that could be retrieved .
-		 */
 		String errorMessage;
 		switch (responseCode) {
 		case 400: // BAD REQUEST
@@ -100,7 +95,6 @@ public class DefaultService implements ConcertService {
 			}
 		}
 
-
 		response.close();
 		client.close();
 
@@ -109,14 +103,28 @@ public class DefaultService implements ConcertService {
 
 	@Override
 	public UserDTO authenticateUser(UserDTO user) throws ServiceException {
-		// TODO Auto-generated method stub
-		return null;
+		Client client = ClientBuilder.newClient();
+
+		Response response = client
+				.target(WEB_SERVICE_URI+"/resources/authenticate/")
+				.request()
+				.post(Entity.xml(user));
+
+		// Get the response code from the Response object.
+		int responseCode = response.getStatus ();
+		
+		String errorMessage;
+		switch (responseCode) {
+		case 400:
+		}
+
+		response.close();
+		client.close();
+
+		return user;
 	}
 
 	@Override
-	//	@GET
-	//	@Path("{id}")
-	//	@Produces({ APPLICATION_XML })
 	public Image getImageForPerformer(PerformerDTO performer) throws ServiceException {
 		// TODO Auto-generated method stub
 		return null;

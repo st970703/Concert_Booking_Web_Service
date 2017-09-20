@@ -38,7 +38,7 @@ public interface ConcertService {
 	 * 
 	 */
 	Set<ConcertDTO> getConcerts() throws ServiceException;
-	
+
 	/**
 	 * Returns a Set of PerformerDTO objects. Each member of the Set describes
 	 * a Performer.
@@ -48,7 +48,7 @@ public interface ConcertService {
 	 * 
 	 */
 	Set<PerformerDTO> getPerformers() throws ServiceException;
-	
+
 	/**
 	 * Attempts to create a new user. When successful, the new user is 
 	 * automatically authenticated and logged into the remote service.
@@ -74,7 +74,7 @@ public interface ConcertService {
 	 * 
 	 */
 	UserDTO createUser(UserDTO newUser) throws ServiceException;
-	
+
 	/**
 	 * Attempts to authenticate an existing user and log them into the remote
 	 * service.
@@ -105,7 +105,7 @@ public interface ConcertService {
 	 * 
 	 */
 	UserDTO authenticateUser(UserDTO user) throws ServiceException;
-	
+
 	/**
 	 * Returns an Image for a given performer.
 	 * 
@@ -165,7 +165,7 @@ public interface ConcertService {
 	 * 
 	 */
 	ReservationDTO reserveSeats(ReservationRequestDTO reservationRequest) throws ServiceException;
-	
+
 	/**
 	 * Confirms a reservation. Prior to calling this method, a successful 
 	 * reservation request should have been made via a call to reserveSeats(),
@@ -196,7 +196,7 @@ public interface ConcertService {
 	 * 
 	 */
 	void confirmReservation(ReservationDTO reservation) throws ServiceException;
-	
+
 	/**
 	 * Registers a credit card for the currently logged in user.
 	 * 
@@ -218,7 +218,7 @@ public interface ConcertService {
 	 * 
 	 */
 	void registerCreditCard(CreditCardDTO creditCard) throws ServiceException;
-	
+
 	/**
 	 * Retrieves the bookings (confirmed reservations) for the currently 
 	 * authenticated (logged in) user.
@@ -243,7 +243,7 @@ public interface ConcertService {
 	 * 
 	 */
 	Set<BookingDTO> getBookings() throws ServiceException;
-	
+
 	/**
 	 * Subscribes for news items. Once subscribed, the supplied 
 	 * NewsItemListener will be notified of any news items. The listener is
@@ -261,7 +261,7 @@ public interface ConcertService {
 	 * 
 	 */
 	void subscribeForNewsItems(NewsItemListener listener) throws ServiceException;
-	
+
 	/**
 	 * Cancels a subscription previously made by a subscribeForNewsItems() 
 	 * call.
@@ -275,7 +275,7 @@ public interface ConcertService {
 	 * 
 	 */
 	void cancelSubscription() throws ServiceException;
-	
+
 	/**
 	 * Interface to be implemented by clients that are interested in receiving
 	 * news items. A NewsItemListener is expected to process the incoming new 

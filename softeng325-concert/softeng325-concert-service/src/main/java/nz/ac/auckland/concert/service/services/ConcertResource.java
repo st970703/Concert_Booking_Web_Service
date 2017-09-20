@@ -16,13 +16,16 @@ import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.CookieParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
@@ -186,4 +189,63 @@ public class ConcertResource {
 				eManager.close( );
 				return response;
 	}
+
+	@POST
+	@Path("/authenticate")
+	@Consumes({APPLICATION_XML})
+	@Produces({ APPLICATION_XML })
+	public Response authenticateUser(UserDTO uDto) {
+		_logger.info("Creating User");
+		ResponseBuilder builder = new ResponseBuilderImpl();
+
+		User user = UserMapper.toDomainModel(uDto);
+
+		PersistenceManager pManager = PersistenceManager.instance();
+		EntityManager eManager = pManager.createEntityManager();
+
+		TypedQuery<User> userQuery = eManager
+				.createQuery("select u from User u where u._username = :uName", User.class)
+				.setParameter("uName", uDto.getUsername());;
+				List<User> uQuery = userQuery.getResultList();
+
+				//Condition: the remote service doesn't have a record of a user with the
+				//specified username.
+				if (uQuery.size() != 0) {
+					throw new BadRequestException(
+							Response
+							.status (Status.BAD_REQUEST)
+							.entity (Messages.CREATE_USER_WITH_NON_UNIQUE_NAME)
+							.build ());
+				}
+
+				return null;
+	}
+
+	/*
+	 * helper
+	 */	
+	private NewCookie makeCookie(@CookieParam("clientId") Cookie clientId){
+		NewCookie newCookie = null;
+
+		if(clientId == null) {
+			newCookie = new NewCookie(Config.CLIENT_COOKIE, UUID.randomUUID().toString());
+			_logger.info("Generated cookie: " + newCookie.getValue());
+		}
+
+		return newCookie;
+	}
+	//	 * Condition: the UserDTO parameter doesn't have values for username and/or
+	//	 * password.
+	//	 * Messages.AUTHENTICATE_USER_WITH_MISSING_FIELDS
+	//	 * 
+	//	 * Condition: the remote service doesn't have a record of a user with the
+	//	 * specified username.
+	//	 * Messages.AUTHENTICATE_NON_EXISTENT_USER
+	//	 * 
+	//	 * Condition: the given user can't be authenticated because their password
+	//	 * doesn't match what's stored in the remote service.
+	//	 * Messages.AUTHENTICATE_USER_WITH_ILLEGAL_PASSWORD
+	//	 * 
+	//	 * Condition: there is a communication error.
+	//	 * Messages.SERVICE_COMMUNICATION_ERROR
 }
