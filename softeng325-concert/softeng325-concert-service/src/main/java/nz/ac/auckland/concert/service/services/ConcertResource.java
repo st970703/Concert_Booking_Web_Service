@@ -54,7 +54,7 @@ public class ConcertResource {
 	public Response retrieveConcerts() {
 		PersistenceManager pManager = PersistenceManager.instance();
 		EntityManager eManager = pManager.createEntityManager();
-		
+
 		_logger.info("Retrieving all concerts");
 		ResponseBuilder builder = new ResponseBuilderImpl();
 
@@ -142,65 +142,48 @@ public class ConcertResource {
 
 		PersistenceManager pManager = PersistenceManager.instance();
 		EntityManager eManager = pManager.createEntityManager();
-		
-		TypedQuery<User> userQuery = eManager.createQuery("select u from User u where u._id = :id", User.class);
-		List<User> uQuery = userQuery.getResultList();
 
-		//Condition: the supplied username is already taken.
-		if (uQuery.size() > 0) {
-			throw new BadRequestException(
-					Response
-					.status (Status.BAD_REQUEST)
-					.entity (Messages.CREATE_USER_WITH_NON_UNIQUE_NAME)
-					.build ());
-		}
+		TypedQuery<User> userQuery = eManager
+				.createQuery("select u from User u where u._username = :uName", User.class)
+				.setParameter("uName", uDto.getUsername());;
+				List<User> uQuery = userQuery.getResultList();
 
-		//Condition: the expected UserDTO attributes are not set.
-		
-		boolean attributesNotSet = false;
-		if (uDto.getFirstname() == null) {
-			attributesNotSet = true;
-		} else if (uDto.getLastname() == null) {
-			attributesNotSet = true;
-		} else if (uDto.getPassword() == null) {
-			attributesNotSet = true;
-		} else if (uDto.getUsername() == null) {
-			attributesNotSet = true;
-		}
-		
-		if (attributesNotSet = true) {
-			throw new BadRequestException(
-			Response
-			.status (Status.BAD_REQUEST)
-			.entity (Messages.CREATE_USER_WITH_NON_UNIQUE_NAME)
-			.build ());
-		}
-//		Field[] fields = uDto.getClass().getDeclaredFields();
-//		for (Field field: fields) {
-//			if (field == null) {
-//				throw new BadRequestException(
-//						Response
-//						.status (Status.BAD_REQUEST)
-//						.entity (Messages.CREATE_USER_WITH_NON_UNIQUE_NAME)
-//						.build ());
-//			}
-//		}
-		
-		eManager.getTransaction().begin();
-		eManager.persist(user);
-		eManager.getTransaction().commit();
+				//Condition: the supplied username is already taken.
+				if (uQuery.size() != 0) {
+					throw new BadRequestException(
+							Response
+							.status (Status.BAD_REQUEST)
+							.entity (Messages.CREATE_USER_WITH_NON_UNIQUE_NAME)
+							.build ());
+				}
 
-		builder.status(201);
+				if (uDto.getFirstname() == null
+						|| uDto.getLastname() == null
+						|| uDto.getPassword() == null
+						|| uDto.getUsername() == null
+						) {
+					throw new BadRequestException(
+							Response
+							.status (Status.BAD_REQUEST)
+							.entity (Messages.CREATE_USER_WITH_MISSING_FIELDS)
+							.build ());
+				}
 
-		Response response = Response
-				.created(URI.create("/resources/users/" + user.getId()))
-				.build();
+				eManager.getTransaction().begin();
+				eManager.persist(user);
+				eManager.getTransaction().commit();
 
-		builder = Response.ok(uDto);
+				builder.status(201);
 
-		response = (Response) builder.build();
+				Response response = Response
+						.created(URI.create("/resources/users/" + user.getId()))
+						.build();
 
-		eManager.close( );
-		return response;
+				builder = Response.ok(uDto);
+
+				response = (Response) builder.build();
+
+				eManager.close( );
+				return response;
 	}
 }

@@ -19,8 +19,8 @@ public class UserMapper {
 		nz.ac.auckland.concert.service.domain.User user = new User(
 				uDto.getUsername(),
 				uDto.getPassword(),
-				uDto.getFirstname(),
 				uDto.getLastname(),
+				uDto.getFirstname(),
 				null,
 				null
 

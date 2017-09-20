@@ -4,27 +4,17 @@ import nz.ac.auckland.concert.common.dto.*;
 import nz.ac.auckland.concert.common.message.Messages;
 import nz.ac.auckland.concert.service.services.PersistenceManager;
 
-import org.jboss.resteasy.specimpl.ResponseBuilderImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.amazonaws.services.identitymanagement.model.User;
-
 import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder.Case;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.Invocation.Builder;
 import javax.ws.rs.core.*;
-import javax.ws.rs.core.Response.ResponseBuilder;
-import javax.xml.bind.annotation.XmlElement;
-
 import java.awt.*;
-import java.net.URI;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicLong;
 
 public class DefaultService implements ConcertService {
 
@@ -100,15 +90,9 @@ public class DefaultService implements ConcertService {
 		case 400: // BAD REQUEST
 			//Condition: the expected UserDTO attributes are not set.
 			errorMessage = response.readEntity ( String.class );
-			if (errorMessage.equals(Messages.CREATE_USER_WITH_MISSING_FIELDS)) {
-				throw new ServiceException(Messages.CREATE_USER_WITH_MISSING_FIELDS);
-			}
-			
-			if (errorMessage.equals(Messages.CREATE_USER_WITH_NON_UNIQUE_NAME)) {
-				throw new ServiceException(Messages.CREATE_USER_WITH_NON_UNIQUE_NAME);	
-			}
+			throw new ServiceException(errorMessage);
 
-		default:
+		case 500:
 			//Condition: there is a communication error.
 			errorMessage = response.readEntity ( String.class );
 			if (errorMessage.equals(Messages.SERVICE_COMMUNICATION_ERROR)) {
