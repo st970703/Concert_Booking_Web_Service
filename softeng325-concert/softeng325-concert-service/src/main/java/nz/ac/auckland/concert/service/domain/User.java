@@ -23,19 +23,28 @@ public class User {
 
 	private CreditCard _cCard;
 
+	@OneToOne(optional = false,cascade = {CascadeType.PERSIST,CascadeType.REMOVE}, fetch = FetchType.LAZY )
+	@JoinColumn(name="USER_TOKEN",unique=true )
+	private Token _userToken;
+
 	@OneToMany
 	@JoinColumn(name = "RESERVATION")
 	private Set<Reservation> _reservations;
 
+	@ElementCollection
+	@CollectionTable( name = "CREDITCARD")
+	private Set<CreditCard> _creditCards;
+
 	public User() {}
 
-	public User(String username, String password, String lastname, String firstname, CreditCard cCard, Set<Reservation> reservations) {
+	public User(String username, String password, String lastname, String firstname, CreditCard cCard, Set<Reservation> reservations, Set<CreditCard> creditCards) {
 		_username = username;
 		_password = password;
 		_lastname = lastname;
 		_firstname = firstname;
 		_cCard = cCard;
 		_reservations = reservations;
+		_creditCards = creditCards;
 	}
 
 	/*public User(String username, String password) {

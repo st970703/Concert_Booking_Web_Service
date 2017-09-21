@@ -6,6 +6,7 @@ import nz.ac.auckland.concert.common.dto.UserDTO;
 import nz.ac.auckland.concert.common.message.Messages;
 import nz.ac.auckland.concert.service.domain.Concert;
 import nz.ac.auckland.concert.service.domain.Performer;
+import nz.ac.auckland.concert.service.domain.Token;
 import nz.ac.auckland.concert.service.domain.User;
 
 import org.jboss.logging.Message;
@@ -169,6 +170,11 @@ public class ConcertResource {
 		eManager.persist(user);
 		eManager.getTransaction().commit();
 
+		NewCookie cookie = makeCookie(null);
+
+		Token userToken = new Token(cookie.getValue(), user);
+
+
 		builder.status(Status.CREATED);
 
 		Response response = Response
@@ -197,7 +203,7 @@ public class ConcertResource {
 		TypedQuery<User> userQuery = eManager
 				.createQuery("select u from User u where u._username = :uName", User.class)
 				.setParameter("uName", uDto.getUsername());;
-				List<User> uQuery = userQuery.getResultList();
+				User uQuery = userQuery.getSingleResult();
 
 				/*Condition: the UserDTO parameter doesn't have values for username and/or
 		password.*/
@@ -213,7 +219,7 @@ public class ConcertResource {
 
 				/*Condition: the remote service doesn't have a record of a user with the
 		specified username.*/
-				if (uQuery.size() == 0) {
+				if (uQuery == null) {
 					throw new NotAuthorizedException(
 							Response
 							.status (Status.UNAUTHORIZED)
@@ -221,11 +227,13 @@ public class ConcertResource {
 							.build ());
 				}
 
-				//		TypedQuery<Token> tokenQuery = eManager
-				//				.createQuery("select t from Token t where t._tokenKey = :tKey", Token.class)
-				//				.setParameter("tKey", usertId.getValue());
-				//Token tokenQuery = tokenQuery.getResultList();
-
+				if(!uQuery.getPassword().equals(uDto.getPassword())){
+					throw new BadRequestException(Response
+							.status (Status.BAD_REQUEST)
+							.entity (Messages.AUTHENTICATE_USER_WITH_ILLEGAL_PASSWORD)
+							.build());
+				}
+				
 				Response response = Response
 						.created(URI.create("/resources/users/" + user.getId()))
 						.build();

@@ -111,7 +111,7 @@ public class DefaultService implements ConcertService {
 		int responseCode = response.getStatus ();
 
 		String errorMessage;
-		System.out.println(response.getStatus ());
+
 		boolean attrNotSet = false;
 
 		switch (responseCode) {
