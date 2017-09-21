@@ -1,9 +1,5 @@
 package nz.ac.auckland.concert.service.services;
 
-import org.jboss.resteasy.specimpl.ResponseBuilderImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import nz.ac.auckland.concert.common.dto.ConcertDTO;
 import nz.ac.auckland.concert.common.dto.PerformerDTO;
 import nz.ac.auckland.concert.common.dto.UserDTO;
@@ -12,29 +8,26 @@ import nz.ac.auckland.concert.service.domain.Concert;
 import nz.ac.auckland.concert.service.domain.Performer;
 import nz.ac.auckland.concert.service.domain.User;
 
+import org.jboss.logging.Message;
+import org.jboss.resteasy.specimpl.ResponseBuilderImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.CookieParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.NotAuthorizedException;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
-
 import java.net.URI;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+
 import static javax.ws.rs.core.MediaType.APPLICATION_XML;
 
 /**
@@ -57,9 +50,10 @@ public class ConcertResource {
 	public Response retrieveConcerts() {
 		PersistenceManager pManager = PersistenceManager.instance();
 		EntityManager eManager = pManager.createEntityManager();
+		Response response;
+		ResponseBuilder builder = new ResponseBuilderImpl();
 
 		_logger.info("Retrieving all concerts");
-		ResponseBuilder builder = new ResponseBuilderImpl();
 
 		eManager.getTransaction().begin();
 
@@ -77,7 +71,7 @@ public class ConcertResource {
 		}
 
 		//convert
-		Set<ConcertDTO> cDtos = new HashSet<ConcertDTO>(); 
+		Set<ConcertDTO> cDtos = new HashSet<ConcertDTO>();
 		for(Concert c: concerts) {
 			cDtos.add(ConcertMapper.toDto(c));
 		}
@@ -86,9 +80,7 @@ public class ConcertResource {
 				Set<ConcertDTO>>(cDtos) {};
 				builder = Response.ok(entity);
 
-				Response response = (Response) builder.build();
-
-				eManager.close( );
+				response = (Response) builder.build();
 
 				return response;
 	}
@@ -102,6 +94,8 @@ public class ConcertResource {
 
 		PersistenceManager pManager = PersistenceManager.instance();
 		EntityManager eManager = pManager.createEntityManager();
+		Response response;
+
 		eManager.getTransaction().begin();
 
 		TypedQuery<Performer> performertQuery = eManager.createQuery("select p from Performer p", Performer.class);
@@ -118,7 +112,7 @@ public class ConcertResource {
 		}
 
 		//convert
-		Set<PerformerDTO> pDtos = new HashSet<PerformerDTO>(); 
+		Set<PerformerDTO> pDtos = new HashSet<PerformerDTO>();
 		for(Performer p: performers) {
 			pDtos.add(PerformerMapper.toDto(p));
 		}
@@ -127,10 +121,8 @@ public class ConcertResource {
 				Set<PerformerDTO>>(pDtos) {};
 				builder = Response.ok(entity);
 
-				Response.status(Status.OK);
-				Response response = (Response) builder.build();
+				response = (Response) builder.build();
 
-				eManager.close( );
 				return response;
 	}
 
@@ -138,7 +130,7 @@ public class ConcertResource {
 	@Path("/users")
 	@Consumes({APPLICATION_XML})
 	@Produces({ APPLICATION_XML })
-	public Response createUser(UserDTO uDto, @CookieParam("clientId") Cookie clientId) {
+	public Response createUser(UserDTO uDto) {
 		_logger.info("Creating User");
 		ResponseBuilder builder = new ResponseBuilderImpl();
 
@@ -149,52 +141,44 @@ public class ConcertResource {
 
 		TypedQuery<User> userQuery = eManager
 				.createQuery("select u from User u where u._username = :uName", User.class)
-				.setParameter("uName", uDto.getUsername());
-				List<User> uQuery = userQuery.getResultList();
+				.setParameter("uName", uDto.getUsername());;
+		List<User> uQuery = userQuery.getResultList();
 
-				//Condition: the supplied username is already taken.
-				if (uQuery.size() != 0) {
-					throw new BadRequestException(
-							Response
+		//Condition: the supplied username is already taken.
+		if (uQuery.size() != 0) {
+			throw new BadRequestException(
+					Response
 							.status (Status.BAD_REQUEST)
 							.entity (Messages.CREATE_USER_WITH_NON_UNIQUE_NAME)
 							.build ());
-				}
+		}
 
-				if (uDto.getFirstname() == null
-						|| uDto.getLastname() == null
-						|| uDto.getPassword() == null
-						|| uDto.getUsername() == null
-						) {
-					throw new BadRequestException(
-							Response
+		if (uDto.getFirstname() == null
+				|| uDto.getLastname() == null
+				|| uDto.getPassword() == null
+				|| uDto.getUsername() == null
+				) {
+			throw new BadRequestException(
+					Response
 							.status (Status.BAD_REQUEST)
 							.entity (Messages.CREATE_USER_WITH_MISSING_FIELDS)
 							.build ());
-				}
+		}
 
-				eManager.getTransaction().begin();
-				eManager.persist(user);
-				eManager.getTransaction().commit();
+		eManager.getTransaction().begin();
+		eManager.persist(user);
+		eManager.getTransaction().commit();
 
-				builder.status(201);
+		builder.status(Status.CREATED);
 
-				Response response = Response
-						.created(URI.create("/resources/users/" + user.getId()))
-						.build();
+		Response response = Response
+				.created(URI.create("/resources/users/" + user.getId()))
+				.build();
 
-				//attach automatic authentication/cookie
-				NewCookie newCookie = makeCookie(clientId);
+		response = (Response) builder.build();
 
-				builder = Response.ok(uDto);
-				builder.cookie(newCookie);
-
-				response = (Response) builder.build();
-
-				eManager.close( );
-				response.close();
-				
-				return response;
+		eManager.close( );
+		return response;
 	}
 
 	@POST
@@ -216,7 +200,7 @@ public class ConcertResource {
 				List<User> uQuery = userQuery.getResultList();
 
 				/*Condition: the UserDTO parameter doesn't have values for username and/or
-				password.*/
+		password.*/
 				if (uDto.getPassword() == null
 						|| uDto.getUsername() == null
 						) {
@@ -228,7 +212,7 @@ public class ConcertResource {
 				}
 
 				/*Condition: the remote service doesn't have a record of a user with the
-				specified username.*/
+		specified username.*/
 				if (uQuery.size() == 0) {
 					throw new NotAuthorizedException(
 							Response
@@ -237,35 +221,37 @@ public class ConcertResource {
 							.build ());
 				}
 
-				return null;
+				//		TypedQuery<Token> tokenQuery = eManager
+				//				.createQuery("select t from Token t where t._tokenKey = :tKey", Token.class)
+				//				.setParameter("tKey", usertId.getValue());
+				//Token tokenQuery = tokenQuery.getResultList();
+
+				Response response = Response
+						.created(URI.create("/resources/users/" + user.getId()))
+						.build();
+
+				builder = Response.ok(uDto);
+
+				response = builder.build();
+
+				return response;
 	}
 
 	/*
 	 * helper
-	 */	
+	 */
 	private NewCookie makeCookie(@CookieParam("clientId") Cookie clientId){
 		NewCookie newCookie = null;
-		
+
 		if(clientId == null) {
 			newCookie = new NewCookie(CLIENT_COOKIE, UUID.randomUUID().toString());
-			_logger.info("Generated cookie: " + newCookie.getValue());
+			_logger.info("Generated new cookie: " + newCookie.getValue());
+		} else {
+			newCookie = new NewCookie(CLIENT_COOKIE, clientId.getValue());
+			_logger.info("Generated same cookie: " + newCookie.getValue());
 		}
 
 		return newCookie;
 	}
 
-	//	 * Condition: the UserDTO parameter doesn't have values for username and/or
-	//	 * password.
-	//	 * Messages.AUTHENTICATE_USER_WITH_MISSING_FIELDS
-	//	 * 
-	//	 * Condition: the remote service doesn't have a record of a user with the
-	//	 * specified username.
-	//	 * Messages.AUTHENTICATE_NON_EXISTENT_USER
-	//	 * 
-	//	 * Condition: the given user can't be authenticated because their password
-	//	 * doesn't match what's stored in the remote service.
-	//	 * Messages.AUTHENTICATE_USER_WITH_ILLEGAL_PASSWORD
-	//	 * 
-	//	 * Condition: there is a communication error.
-	//	 * Messages.SERVICE_COMMUNICATION_ERROR
 }

@@ -9,9 +9,6 @@ import java.util.Set;
 @Entity
 public class User {
 	@Id
-	@GeneratedValue
-	private Long  _uId;
-
 	@Column(nullable = false, name = "USERNAME")
 	private String _username;
 
@@ -30,7 +27,7 @@ public class User {
 	@JoinColumn(name = "RESERVATION")
 	private Set<Reservation> _reservations;
 
-	protected User() {}
+	public User() {}
 
 	public User(String username, String password, String lastname, String firstname, CreditCard cCard, Set<Reservation> reservations) {
 		_username = username;
@@ -41,13 +38,9 @@ public class User {
 		_reservations = reservations;
 	}
 
-	public User(String username, String password) {
+	/*public User(String username, String password) {
 		this(username, password, null, null, null, null);
-	}
-
-	public Long getId() {
-		return _uId;
-	}
+	}*/
 	
 	public CreditCard getCreditCard() {
 		return _cCard;
@@ -68,6 +61,8 @@ public class User {
 	public String getLastname() {
 		return _lastname;
 	}
+
+	public String getId() {return _username;}
 
 	@Override
 	public boolean equals(Object obj) {

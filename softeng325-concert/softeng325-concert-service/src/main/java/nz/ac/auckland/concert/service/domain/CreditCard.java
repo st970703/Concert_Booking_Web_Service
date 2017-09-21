@@ -25,7 +25,6 @@ public class CreditCard {
 	private String _number;
 
 	@Column(name = "EXPIRY_DATE")
-	@Convert(converter = LocalDateTimeConverter.class)
 	private LocalDate _expiryDate;
 
 	public CreditCard() {}

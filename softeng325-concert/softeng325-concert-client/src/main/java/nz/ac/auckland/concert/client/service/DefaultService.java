@@ -28,6 +28,7 @@ public class DefaultService implements ConcertService {
 	@Override
 	public Set<ConcertDTO> getConcerts() throws ServiceException {
 		Client client = ClientBuilder.newClient();
+		Set<ConcertDTO> cDtos = null;
 
 		Response response = client
 				.target(WEB_SERVICE_URI+"/resources/concerts/")
@@ -35,23 +36,24 @@ public class DefaultService implements ConcertService {
 				.get();
 
 		// Get the response code from the Response object.
-		int responseCode = response.getStatus ();
+		int responseCode = response.getStatus();
 
 		String errorMessage;
 		switch (responseCode) {
-		case 500:
-			//Condition: there is a communication error.
-			errorMessage = response.readEntity ( String.class );
-			if (errorMessage.equals(Messages.SERVICE_COMMUNICATION_ERROR)) {
-				throw new ServiceException(Messages.SERVICE_COMMUNICATION_ERROR);
-			}
+			case 200:
+				cDtos = new HashSet<>(
+						response.readEntity(
+								new GenericType<
+										Set<nz.ac.auckland.concert.common.dto.ConcertDTO>>() {
+								}));
+				break;
+			default:
+				//Condition: there is a communication error.
+				errorMessage = response.readEntity ( String.class );
+				if (errorMessage.equals(Messages.SERVICE_COMMUNICATION_ERROR)) {
+					throw new ServiceException(Messages.SERVICE_COMMUNICATION_ERROR);
+				}
 		}
-
-		Set<ConcertDTO> cDtos = new HashSet<>(
-				response.readEntity(
-						new GenericType<
-						Set<nz.ac.auckland.concert.common.dto.ConcertDTO>>() {
-						}));
 
 		response.close();
 		client.close();
@@ -62,6 +64,7 @@ public class DefaultService implements ConcertService {
 	@Override
 	public Set<PerformerDTO> getPerformers() throws ServiceException {
 		Client client = ClientBuilder.newClient();
+		Set<PerformerDTO> pDtos = null;
 
 		Response response = client
 				.target(WEB_SERVICE_URI+"/resources/performers/")
@@ -73,19 +76,20 @@ public class DefaultService implements ConcertService {
 
 		String errorMessage;
 		switch (responseCode) {
-		case 500:
-			//Condition: there is a communication error.
-			errorMessage = response.readEntity ( String.class );
-			if (errorMessage.equals(Messages.SERVICE_COMMUNICATION_ERROR)) {
-				throw new ServiceException(Messages.SERVICE_COMMUNICATION_ERROR);
-			}
+			case 200:
+				pDtos = new HashSet<>(
+						response.readEntity(
+								new GenericType<
+										Set<nz.ac.auckland.concert.common.dto.PerformerDTO>>() {
+								}));
+				break;
+			default:
+				//Condition: there is a communication error.
+				errorMessage = response.readEntity ( String.class );
+				if (errorMessage.equals(Messages.SERVICE_COMMUNICATION_ERROR)) {
+					throw new ServiceException(Messages.SERVICE_COMMUNICATION_ERROR);
+				}
 		}
-		
-		Set<PerformerDTO> pDtos = new HashSet<>(
-				response.readEntity(
-						new GenericType<
-						Set<nz.ac.auckland.concert.common.dto.PerformerDTO>>() {
-						}));
 
 		response.close();
 		client.close();
@@ -107,18 +111,17 @@ public class DefaultService implements ConcertService {
 		int responseCode = response.getStatus ();
 
 		String errorMessage;
-		switch (responseCode) {
-		case 400: // BAD REQUEST
-			//Condition: the expected UserDTO attributes are not set.
-			errorMessage = response.readEntity ( String.class );
-			throw new ServiceException(errorMessage);
+		System.out.println(response.getStatus ());
+		boolean attrNotSet = false;
 
-		case 500:
-			//Condition: there is a communication error.
-			errorMessage = response.readEntity ( String.class );
-			if (errorMessage.equals(Messages.SERVICE_COMMUNICATION_ERROR)) {
+		switch (responseCode) {
+			case 400:
+				errorMessage = response.readEntity (String.class);
+				throw new ServiceException(errorMessage);
+			case 201:
+				break;
+			default:
 				throw new ServiceException(Messages.SERVICE_COMMUNICATION_ERROR);
-			}
 		}
 
 		response.close();
@@ -141,7 +144,8 @@ public class DefaultService implements ConcertService {
 
 		String errorMessage;
 		switch (responseCode) {
-		case 400:
+			case 400:
+				break;
 		}
 
 		response.close();
@@ -179,7 +183,7 @@ public class DefaultService implements ConcertService {
 		// TODO Auto-generated method stub
 
 	}
-	
+
 
 	@Override
 	//	@GET
