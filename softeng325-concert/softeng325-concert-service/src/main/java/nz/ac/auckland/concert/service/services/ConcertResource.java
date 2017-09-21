@@ -25,19 +25,16 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.GenericEntity;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 
-import java.lang.reflect.Field;
 import java.net.URI;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicLong;
-
+import java.util.UUID;
 import static javax.ws.rs.core.MediaType.APPLICATION_XML;
 
 /**
@@ -51,6 +48,8 @@ public class ConcertResource {
 
 	private static Logger _logger = LoggerFactory
 			.getLogger(ConcertResource.class);
+
+	private final String CLIENT_COOKIE = "clientId";
 
 	@GET
 	@Path("/concerts")
@@ -128,6 +127,7 @@ public class ConcertResource {
 				Set<PerformerDTO>>(pDtos) {};
 				builder = Response.ok(entity);
 
+				Response.status(Status.OK);
 				Response response = (Response) builder.build();
 
 				eManager.close( );
@@ -138,7 +138,7 @@ public class ConcertResource {
 	@Path("/users")
 	@Consumes({APPLICATION_XML})
 	@Produces({ APPLICATION_XML })
-	public Response createUser(UserDTO uDto) {
+	public Response createUser(UserDTO uDto, @CookieParam("clientId") Cookie clientId) {
 		_logger.info("Creating User");
 		ResponseBuilder builder = new ResponseBuilderImpl();
 
@@ -149,7 +149,7 @@ public class ConcertResource {
 
 		TypedQuery<User> userQuery = eManager
 				.createQuery("select u from User u where u._username = :uName", User.class)
-				.setParameter("uName", uDto.getUsername());;
+				.setParameter("uName", uDto.getUsername());
 				List<User> uQuery = userQuery.getResultList();
 
 				//Condition: the supplied username is already taken.
@@ -183,11 +183,17 @@ public class ConcertResource {
 						.created(URI.create("/resources/users/" + user.getId()))
 						.build();
 
+				//attach automatic authentication/cookie
+				NewCookie newCookie = makeCookie(clientId);
+
 				builder = Response.ok(uDto);
+				builder.cookie(newCookie);
 
 				response = (Response) builder.build();
 
 				eManager.close( );
+				response.close();
+				
 				return response;
 	}
 
@@ -195,7 +201,7 @@ public class ConcertResource {
 	@Path("/authenticate")
 	@Consumes({APPLICATION_XML})
 	@Produces({ APPLICATION_XML })
-	public Response authenticateUser(UserDTO uDto) {
+	public Response authenticateUser(UserDTO uDto, @CookieParam("userId") Cookie usertId) {
 		_logger.info("Creating User");
 		ResponseBuilder builder = new ResponseBuilderImpl();
 
@@ -239,14 +245,15 @@ public class ConcertResource {
 	 */	
 	private NewCookie makeCookie(@CookieParam("clientId") Cookie clientId){
 		NewCookie newCookie = null;
-
+		
 		if(clientId == null) {
-			newCookie = new NewCookie(Config.CLIENT_COOKIE, UUID.randomUUID().toString());
+			newCookie = new NewCookie(CLIENT_COOKIE, UUID.randomUUID().toString());
 			_logger.info("Generated cookie: " + newCookie.getValue());
 		}
 
 		return newCookie;
 	}
+
 	//	 * Condition: the UserDTO parameter doesn't have values for username and/or
 	//	 * password.
 	//	 * Messages.AUTHENTICATE_USER_WITH_MISSING_FIELDS

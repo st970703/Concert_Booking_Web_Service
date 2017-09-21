@@ -34,6 +34,19 @@ public class DefaultService implements ConcertService {
 				.request()
 				.get();
 
+		// Get the response code from the Response object.
+		int responseCode = response.getStatus ();
+
+		String errorMessage;
+		switch (responseCode) {
+		case 500:
+			//Condition: there is a communication error.
+			errorMessage = response.readEntity ( String.class );
+			if (errorMessage.equals(Messages.SERVICE_COMMUNICATION_ERROR)) {
+				throw new ServiceException(Messages.SERVICE_COMMUNICATION_ERROR);
+			}
+		}
+
 		Set<ConcertDTO> cDtos = new HashSet<>(
 				response.readEntity(
 						new GenericType<
@@ -55,6 +68,19 @@ public class DefaultService implements ConcertService {
 				.request()
 				.get();
 
+		// Get the response code from the Response object.
+		int responseCode = response.getStatus ();
+
+		String errorMessage;
+		switch (responseCode) {
+		case 500:
+			//Condition: there is a communication error.
+			errorMessage = response.readEntity ( String.class );
+			if (errorMessage.equals(Messages.SERVICE_COMMUNICATION_ERROR)) {
+				throw new ServiceException(Messages.SERVICE_COMMUNICATION_ERROR);
+			}
+		}
+		
 		Set<PerformerDTO> pDtos = new HashSet<>(
 				response.readEntity(
 						new GenericType<
@@ -112,7 +138,7 @@ public class DefaultService implements ConcertService {
 
 		// Get the response code from the Response object.
 		int responseCode = response.getStatus ();
-		
+
 		String errorMessage;
 		switch (responseCode) {
 		case 400:
@@ -153,6 +179,7 @@ public class DefaultService implements ConcertService {
 		// TODO Auto-generated method stub
 
 	}
+	
 
 	@Override
 	//	@GET
