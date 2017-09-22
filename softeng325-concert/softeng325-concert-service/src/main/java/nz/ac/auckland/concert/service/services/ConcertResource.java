@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Cookie;
@@ -185,17 +186,8 @@ public class ConcertResource {
 	@Path("/authenticate")
 	@Consumes({APPLICATION_XML})
 	@Produces({ APPLICATION_XML })
-	public Response authenticateUser(UserDTO uDto, @CookieParam("userId") Cookie usertId) {
+	public Response authenticateUser(UserDTO uDto) {
 		_logger.info("Creating User");
-		ResponseBuilder builder = new ResponseBuilderImpl();
-
-		PersistenceManager pManager = PersistenceManager.instance();
-		EntityManager eManager = pManager.createEntityManager();
-
-		TypedQuery<User> userQuery = eManager
-				.createQuery("select u from User u where u._username = :uName", User.class)
-				.setParameter("uName", uDto.getUsername());
-		User uQuery = userQuery.getSingleResult();
 
 		/*Condition: the UserDTO parameter doesn't have values for username and/or
 		password.*/
@@ -209,34 +201,44 @@ public class ConcertResource {
 							.build ());
 		}
 
-				/*Condition: the remote service doesn't have a record of a user with the
-		specified username.*/
-		if (uQuery == null) {
+		Response response;
+
+		try {
+			ResponseBuilder builder = new ResponseBuilderImpl();
+
+			PersistenceManager pManager = PersistenceManager.instance();
+			EntityManager eManager = pManager.createEntityManager();
+			TypedQuery<User> userQuery = eManager
+					.createQuery("select u from User u where u._username = :uName", User.class)
+					.setParameter("uName", uDto.getUsername());
+			User uQuery = userQuery.getSingleResult();
+
+			//condition: wrong password
+			boolean wrongPassword = !uQuery.getPassword().equals(uDto.getPassword());
+			if(wrongPassword){
+				System.out.println("if(wrongPassword)");
+				throw new NotAuthorizedException(Response
+						.status (Status.UNAUTHORIZED)
+						.entity (Messages.AUTHENTICATE_USER_WITH_ILLEGAL_PASSWORD)
+						.build());
+			}
+
+			ResponseBuilder rBuilder = Response.ok(uDto);
+
+			UserDTO new_uDto = UserMapper.toDto(uQuery);
+
+			rBuilder.entity(new_uDto);
+			rBuilder.cookie(makeCookie(new_uDto.getUsername()));
+
+			_logger.info("Authentication token value:" + uQuery.getToken());
+
+			response = rBuilder.build();
+		} catch (NoResultException nre) {
 			throw new NotAuthorizedException(
-					Response
-							.status (Status.UNAUTHORIZED)
+					Response.status (Status.UNAUTHORIZED)
 							.entity (Messages.AUTHENTICATE_NON_EXISTENT_USER)
 							.build ());
 		}
-
-		//condition: wrong password
-		if(!uQuery.getPassword().equals(uDto.getPassword())){
-			throw new BadRequestException(Response
-					.status (Status.BAD_REQUEST)
-					.entity (Messages.AUTHENTICATE_USER_WITH_ILLEGAL_PASSWORD)
-					.build());
-		}
-
-		ResponseBuilder rBuilder = Response.ok(uDto);
-
-		UserDTO new_uDto = UserMapper.toDto(uQuery);
-
-		rBuilder.entity(new_uDto);
-
-		rBuilder.cookie(makeCookie(uQuery.getToken()));
-		_logger.info("Authentication token value:" + uQuery.getToken());
-
-		Response response = rBuilder.build();
 
 		return response;
 	}

@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Tests for a ConcertService implementation.
- * 
+ *
  * Prior to running each test, an embedded servlet container is started up that
  * hosts a named Web service. Immediately after each test, the servlet 
  * container is stopped. Testing is handled in this way so that the Web service
@@ -48,22 +48,22 @@ import org.slf4j.LoggerFactory;
  * Test class to connect to the H2 database to delete data - hence restarting
  * the Web service before each test allows the Web service to clear from the
  * database the effects of the tests. 
- * 
+ *
  * This Test class references property RESERVATION_EXPIRY_TIME_IN_SECONDS,
  * defined in the Web service Application subclass, ConcertApplication.
  *
  */
 public class ConcertServiceTest {
-	
+
 	private static Logger _logger = LoggerFactory
 			.getLogger(ConcertServiceTest.class);
-	
+
 	private static final int SERVER_PORT = 10000;
 	private static final String WEB_SERVICE_CLASS_NAME = ConcertApplication.class.getName();
-	
+
 	private static Client _client;
 	private static Server _server;
-	
+
 	private ConcertService _service;
 
 	@BeforeClass
@@ -71,7 +71,7 @@ public class ConcertServiceTest {
 		// Use ClientBuilder to create a new client that can be used to create
 		// connections to the Web service.
 		_client = ClientBuilder.newClient();
-		
+
 		// Start the embedded servlet container and host the Web service.
 		ServletHolder servletHolder = new ServletHolder(new HttpServletDispatcher());
 		servletHolder.setInitParameter("javax.ws.rs.Application", WEB_SERVICE_CLASS_NAME);
@@ -81,13 +81,13 @@ public class ConcertServiceTest {
 		_server = new Server(SERVER_PORT);
 		_server.setHandler(servletCtxHandler);
 	}
-	
+
 	@AfterClass
 	public static void shutDown() {
 		_client.close();
 	}
-	
-	@Before 
+
+	@Before
 	public void startServer() throws Exception {
 		_server.start();
 		_service = new DefaultService();
@@ -97,7 +97,7 @@ public class ConcertServiceTest {
 	public void stopServer() throws Exception {
 		_server.stop();
 	}
-	
+
 	@Test
 	public void testRetrieveConcerts() {
 		final int numberOfConcerts = 25;
@@ -113,7 +113,7 @@ public class ConcertServiceTest {
 		Set<PerformerDTO> performers = _service.getPerformers();
 		assertEquals(numberOfPerformers, performers.size());
 	}
-	
+
 	@Test
 	public void testCreateUser() {
 		try {
@@ -124,7 +124,7 @@ public class ConcertServiceTest {
 			fail();
 		}
 	}
-	
+
 	@Test
 	public void testCreateUserWithMissingField() {
 		try {
@@ -135,15 +135,15 @@ public class ConcertServiceTest {
 			assertEquals(Messages.CREATE_USER_WITH_MISSING_FIELDS, e.getMessage());
 		}
 	}
-	
-	@Test 
+
+	@Test
 	public void testCreateUserWithDuplicateUsername() {
 		boolean createdFirstUser = false;
 		try {
 			UserDTO userDTO = new UserDTO("Bulldog", "123", "Churchill", "Winston");
 			_service.createUser(userDTO);
 			createdFirstUser = true;
-			
+
 			userDTO = new UserDTO("Bulldog", "123", "Thatcher", "Margaret");
 			_service.createUser(userDTO);
 			fail();
@@ -155,62 +155,65 @@ public class ConcertServiceTest {
 			assertEquals(Messages.CREATE_USER_WITH_NON_UNIQUE_NAME, e.getMessage());
 		}
 	}
-	
-//	@Test
-//	public void testAuthenticateUser() {
-//		try {
-//			UserDTO userDTO = new UserDTO("Bulldog", "123", "Churchill", "Winston");
-//			_service.createUser(userDTO);
-//
-//			UserDTO credentials = new UserDTO("Bulldog", "123");
-//			UserDTO filledDTO = _service.authenticateUser(credentials);
-//
-//			assertEquals(userDTO, filledDTO);
-//		} catch(ServiceException e) {
-//			System.out.println(e.getMessage());
-//			fail();
-//		}
-//	}
-//
-//	@Test
-//	public void testAuthenticateWithNonExistentUser() {
-//		try {
-//			UserDTO credentials = new UserDTO("Bulldog", "123");
-//			_service.authenticateUser(credentials);
-//			fail();
-//		} catch(ServiceException e) {
-//			assertEquals(Messages.AUTHENTICATE_NON_EXISTENT_USER, e.getMessage());
-//		}
-//	}
-//
-//	@Test
-//	public void testAuthenticateUserWithIncorrectPassword() {
-//		try {
-//			UserDTO userDTO = new UserDTO("Bulldog", "123", "Churchill", "Winston");
-//			_service.createUser(userDTO);
-//
-//			UserDTO credentials = new UserDTO("Bulldog", "987");
-//			_service.authenticateUser(credentials);
-//			fail();
-//		} catch(ServiceException e) {
-//			assertEquals(Messages.AUTHENTICATE_USER_WITH_ILLEGAL_PASSWORD, e.getMessage());
-//		}
-//	}
-//
-//	@Test
-//	public void testAuthenticateUserWithMissingPassword() {
-//		try {
-//			UserDTO userDTO = new UserDTO("Bulldog", "123", "Churchill", "Winston");
-//			_service.createUser(userDTO);
-//
-//			UserDTO credentials = new UserDTO("Bulldog", null);
-//			_service.authenticateUser(credentials);
-//			fail();
-//		} catch(ServiceException e) {
-//			assertEquals(Messages.AUTHENTICATE_USER_WITH_MISSING_FIELDS, e.getMessage());
-//		}
-//	}
-//
+
+	@Test
+	public void testAuthenticateUser() {
+		try {
+			UserDTO userDTO = new UserDTO("Bulldog", "123", "Churchill", "Winston");
+			_service.createUser(userDTO);
+
+			UserDTO credentials = new UserDTO("Bulldog", "123");
+			UserDTO filledDTO = _service.authenticateUser(credentials);
+
+			System.out.println("assertEquals(userDTO, filledDTO)"+userDTO.toString()+filledDTO.toString());
+			assertEquals(userDTO, filledDTO);
+		} catch(ServiceException e) {
+			System.out.println(e.getMessage());
+			fail();
+		}
+	}
+
+	@Test
+	public void testAuthenticateWithNonExistentUser() {
+		try {
+			UserDTO credentials = new UserDTO("Bulldog", "123");
+			_service.authenticateUser(credentials);
+			fail();
+		} catch(ServiceException e) {
+			assertEquals(Messages.AUTHENTICATE_NON_EXISTENT_USER, e.getMessage());
+		}
+	}
+
+	@Test
+	public void testAuthenticateUserWithIncorrectPassword() {
+		try {
+			UserDTO userDTO = new UserDTO("Bulldog", "123", "Churchill", "Winston");
+			_service.createUser(userDTO);
+
+			UserDTO credentials = new UserDTO("Bulldog", "987");
+			_service.authenticateUser(credentials);
+			fail();
+		} catch(ServiceException e) {
+			System.out.println("testAuthenticateUserWithIncorrectPassword()"+e.getMessage());
+			assertEquals(Messages.AUTHENTICATE_USER_WITH_ILLEGAL_PASSWORD, e.getMessage());
+		}
+	}
+
+	@Test
+	public void testAuthenticateUserWithMissingPassword() {
+		try {
+			UserDTO userDTO = new UserDTO("Bulldog", "123", "Churchill", "Winston");
+			_service.createUser(userDTO);
+
+			UserDTO credentials = new UserDTO("Bulldog", null);
+			_service.authenticateUser(credentials);
+			fail();
+		} catch(ServiceException e) {
+			System.out.println("testAuthenticateUserWithMissingPassword()"+e.getMessage());
+			assertEquals(Messages.AUTHENTICATE_USER_WITH_MISSING_FIELDS, e.getMessage());
+		}
+	}
+
 //	@Test
 //	public void testMakeReservation() {
 //		try {

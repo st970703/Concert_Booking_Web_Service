@@ -19,6 +19,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import static nz.ac.auckland.concert.common.Config.CLIENT_COOKIE;
+
 public class DefaultService implements ConcertService {
 
 	private static Logger _logger = LoggerFactory.getLogger(ConcertService.class);
@@ -27,6 +29,8 @@ public class DefaultService implements ConcertService {
 
 	private static PersistenceManager pManager = PersistenceManager.instance();
 	private static EntityManager eManager = pManager.createEntityManager();
+
+	private NewCookie _storedCookie;
 
 	@Override
 	public Set<ConcertDTO> getConcerts() throws ServiceException {
@@ -114,8 +118,7 @@ public class DefaultService implements ConcertService {
 		int responseCode = response.getStatus ();
 
 		String errorMessage;
-
-		boolean attrNotSet = false;
+		System.out.println("switch (responseCode)"+responseCode);
 
 		switch (responseCode) {
 			case 400:
@@ -123,9 +126,13 @@ public class DefaultService implements ConcertService {
 				throw new ServiceException(errorMessage);
 			case 201:
 				break;
+			case 200:
+				break;
 			default:
 				throw new ServiceException(Messages.SERVICE_COMMUNICATION_ERROR);
 		}
+
+		processCookie(response);
 
 		response.close();
 		client.close();
@@ -138,23 +145,36 @@ public class DefaultService implements ConcertService {
 		Client client = ClientBuilder.newClient();
 
 		Response response = client
-				.target(WEB_SERVICE_URI+"/resources/authenticate/")
+				.target(WEB_SERVICE_URI+"/resources/authenticate")
 				.request()
 				.post(Entity.xml(user));
+
+		processCookie(response);
 
 		// Get the response code from the Response object.
 		int responseCode = response.getStatus ();
 
+		UserDTO uDto;
+
 		String errorMessage;
 		switch (responseCode) {
-			case 400:
+			case 401:
+				errorMessage = response.readEntity (String.class);
+
+				System.out.println(errorMessage);
+
+				throw new ServiceException(errorMessage);
+			case 200:
+				uDto = response.readEntity(UserDTO.class);
 				break;
+			default:
+				throw new ServiceException(Messages.SERVICE_COMMUNICATION_ERROR);
 		}
 
 		response.close();
 		client.close();
 
-		return user;
+		return uDto;
 	}
 
 	@Override
@@ -210,15 +230,17 @@ public class DefaultService implements ConcertService {
 		throw new UnsupportedOperationException();
 	}
 
+	/**
+	 *  helper
+	 */
 	private void processCookie(Response response) {
 		Map<String, NewCookie> cookies = response.getCookies();
 
 		boolean containsKey = cookies.containsKey(Config.CLIENT_COOKIE);
 
 		if (containsKey){
-			String cookieValue = cookies.get(Config.CLIENT_COOKIE).getValue();
-
-			//_cookieValues = cookieValue;
+			NewCookie getCookie = cookies.get(Config.CLIENT_COOKIE);
+			_storedCookie = getCookie;
 		}
 	}
 }
