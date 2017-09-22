@@ -6,10 +6,7 @@ import nz.ac.auckland.concert.common.dto.UserDTO;
 import nz.ac.auckland.concert.common.message.Messages;
 import nz.ac.auckland.concert.service.domain.Concert;
 import nz.ac.auckland.concert.service.domain.Performer;
-import nz.ac.auckland.concert.service.domain.Token;
 import nz.ac.auckland.concert.service.domain.User;
-
-import org.jboss.logging.Message;
 import org.jboss.resteasy.specimpl.ResponseBuilderImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +27,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_XML;
+import static nz.ac.auckland.concert.common.Config.CLIENT_COOKIE;
 
 /**
  * Class to implement a simple REST Web service for managing Concerts.
@@ -42,8 +40,6 @@ public class ConcertResource {
 
 	private static Logger _logger = LoggerFactory
 			.getLogger(ConcertResource.class);
-
-	private final String CLIENT_COOKIE = "clientId";
 
 	@GET
 	@Path("/concerts")
@@ -79,11 +75,11 @@ public class ConcertResource {
 
 		GenericEntity<Set<ConcertDTO>> entity = new GenericEntity<
 				Set<ConcertDTO>>(cDtos) {};
-				builder = Response.ok(entity);
+		builder = Response.ok(entity);
 
-				response = (Response) builder.build();
+		response = (Response) builder.build();
 
-				return response;
+		return response;
 	}
 
 	@GET
@@ -120,11 +116,11 @@ public class ConcertResource {
 
 		GenericEntity<Set<PerformerDTO>> entity = new GenericEntity<
 				Set<PerformerDTO>>(pDtos) {};
-				builder = Response.ok(entity);
+		builder = Response.ok(entity);
 
-				response = (Response) builder.build();
+		response = (Response) builder.build();
 
-				return response;
+		return response;
 	}
 
 	@POST
@@ -133,7 +129,17 @@ public class ConcertResource {
 	@Produces({ APPLICATION_XML })
 	public Response createUser(UserDTO uDto) {
 		_logger.info("Creating User");
-		ResponseBuilder builder = new ResponseBuilderImpl();
+
+		if (uDto.getFirstname() == null
+				|| uDto.getLastname() == null
+				|| uDto.getPassword() == null
+				|| uDto.getUsername() == null
+				) {
+			throw new BadRequestException(
+					Response.status (Status.BAD_REQUEST)
+							.entity (Messages.CREATE_USER_WITH_MISSING_FIELDS)
+							.build ());
+		}
 
 		User user = UserMapper.toDomainModel(uDto);
 
@@ -142,7 +148,7 @@ public class ConcertResource {
 
 		TypedQuery<User> userQuery = eManager
 				.createQuery("select u from User u where u._username = :uName", User.class)
-				.setParameter("uName", uDto.getUsername());;
+				.setParameter("uName", uDto.getUsername());
 		List<User> uQuery = userQuery.getResultList();
 
 		//Condition: the supplied username is already taken.
@@ -154,36 +160,24 @@ public class ConcertResource {
 							.build ());
 		}
 
-		if (uDto.getFirstname() == null
-				|| uDto.getLastname() == null
-				|| uDto.getPassword() == null
-				|| uDto.getUsername() == null
-				) {
-			throw new BadRequestException(
-					Response
-							.status (Status.BAD_REQUEST)
-							.entity (Messages.CREATE_USER_WITH_MISSING_FIELDS)
-							.build ());
-		}
+		NewCookie cookie = makeCookie(null);
+		user.setToken(cookie.getValue());
 
 		eManager.getTransaction().begin();
 		eManager.persist(user);
 		eManager.getTransaction().commit();
 
-		NewCookie cookie = makeCookie(null);
+		ResponseBuilder rBuilder = Response
+				.created(URI.create("/resources/users/" + user.getId()));
 
-		Token userToken = new Token(cookie.getValue(), user);
+		rBuilder.cookie(cookie);
 
+		Response response = (Response) rBuilder.build();
 
-		builder.status(Status.CREATED);
+		response.status(Status.CREATED);
 
-		Response response = Response
-				.created(URI.create("/resources/users/" + user.getId()))
-				.build();
+		eManager.close();
 
-		response = (Response) builder.build();
-
-		eManager.close( );
 		return response;
 	}
 
@@ -195,67 +189,69 @@ public class ConcertResource {
 		_logger.info("Creating User");
 		ResponseBuilder builder = new ResponseBuilderImpl();
 
-		User user = UserMapper.toDomainModel(uDto);
-
 		PersistenceManager pManager = PersistenceManager.instance();
 		EntityManager eManager = pManager.createEntityManager();
 
 		TypedQuery<User> userQuery = eManager
 				.createQuery("select u from User u where u._username = :uName", User.class)
-				.setParameter("uName", uDto.getUsername());;
-				User uQuery = userQuery.getSingleResult();
+				.setParameter("uName", uDto.getUsername());
+		User uQuery = userQuery.getSingleResult();
 
-				/*Condition: the UserDTO parameter doesn't have values for username and/or
+		/*Condition: the UserDTO parameter doesn't have values for username and/or
 		password.*/
-				if (uDto.getPassword() == null
-						|| uDto.getUsername() == null
-						) {
-					throw new NotAuthorizedException(
-							Response
+		if (uDto.getPassword() == null
+				|| uDto.getUsername() == null
+				) {
+			throw new NotAuthorizedException(
+					Response
 							.status (Status.UNAUTHORIZED)
 							.entity (Messages.AUTHENTICATE_USER_WITH_MISSING_FIELDS)
 							.build ());
-				}
+		}
 
 				/*Condition: the remote service doesn't have a record of a user with the
 		specified username.*/
-				if (uQuery == null) {
-					throw new NotAuthorizedException(
-							Response
+		if (uQuery == null) {
+			throw new NotAuthorizedException(
+					Response
 							.status (Status.UNAUTHORIZED)
 							.entity (Messages.AUTHENTICATE_NON_EXISTENT_USER)
 							.build ());
-				}
+		}
 
-				if(!uQuery.getPassword().equals(uDto.getPassword())){
-					throw new BadRequestException(Response
-							.status (Status.BAD_REQUEST)
-							.entity (Messages.AUTHENTICATE_USER_WITH_ILLEGAL_PASSWORD)
-							.build());
-				}
-				
-				Response response = Response
-						.created(URI.create("/resources/users/" + user.getId()))
-						.build();
+		//condition: wrong password
+		if(!uQuery.getPassword().equals(uDto.getPassword())){
+			throw new BadRequestException(Response
+					.status (Status.BAD_REQUEST)
+					.entity (Messages.AUTHENTICATE_USER_WITH_ILLEGAL_PASSWORD)
+					.build());
+		}
 
-				builder = Response.ok(uDto);
+		ResponseBuilder rBuilder = Response.ok(uDto);
 
-				response = builder.build();
+		UserDTO new_uDto = UserMapper.toDto(uQuery);
 
-				return response;
+		rBuilder.entity(new_uDto);
+
+		rBuilder.cookie(makeCookie(uQuery.getToken()));
+		_logger.info("Authentication token value:" + uQuery.getToken());
+
+		Response response = rBuilder.build();
+
+		return response;
 	}
 
 	/*
 	 * helper
 	 */
-	private NewCookie makeCookie(@CookieParam("clientId") Cookie clientId){
-		NewCookie newCookie = null;
+	private NewCookie makeCookie(String clientId){
+		NewCookie newCookie;
 
 		if(clientId == null) {
 			newCookie = new NewCookie(CLIENT_COOKIE, UUID.randomUUID().toString());
 			_logger.info("Generated new cookie: " + newCookie.getValue());
 		} else {
-			newCookie = new NewCookie(CLIENT_COOKIE, clientId.getValue());
+			newCookie = new NewCookie(CLIENT_COOKIE, clientId);
 			_logger.info("Generated same cookie: " + newCookie.getValue());
 		}
 

@@ -1,9 +1,9 @@
 package nz.ac.auckland.concert.client.service;
 
+import nz.ac.auckland.concert.common.Config;
 import nz.ac.auckland.concert.common.dto.*;
 import nz.ac.auckland.concert.common.message.Messages;
 import nz.ac.auckland.concert.service.services.PersistenceManager;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,9 +11,12 @@ import javax.persistence.EntityManager;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.*;
+import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.NewCookie;
+import javax.ws.rs.core.Response;
 import java.awt.*;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class DefaultService implements ConcertService {
@@ -161,8 +164,7 @@ public class DefaultService implements ConcertService {
 	}
 
 	@Override
-	//	@POST
-	//	@Consumes({ APPLICATION_XML })
+
 	public ReservationDTO reserveSeats(ReservationRequestDTO reservationRequest) throws ServiceException {
 		// TODO Auto-generated method stub
 		return null;
@@ -206,5 +208,17 @@ public class DefaultService implements ConcertService {
 	//	@DELETE
 	public void cancelSubscription() {
 		throw new UnsupportedOperationException();
+	}
+
+	private void processCookie(Response response) {
+		Map<String, NewCookie> cookies = response.getCookies();
+
+		boolean containsKey = cookies.containsKey(Config.CLIENT_COOKIE);
+
+		if (containsKey){
+			String cookieValue = cookies.get(Config.CLIENT_COOKIE).getValue();
+
+			//_cookieValues = cookieValue;
+		}
 	}
 }

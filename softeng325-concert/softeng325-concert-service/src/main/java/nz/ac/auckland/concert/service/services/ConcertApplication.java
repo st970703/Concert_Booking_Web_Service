@@ -43,6 +43,7 @@ public class ConcertApplication extends Application {
 			// Delete all existing entities of some type, e. g. MyEntity.
 			em.createQuery("delete from User").executeUpdate();
 
+
 			em.getTransaction ().commit();
 		} catch(Exception e) {
 			// Process and log the exception .

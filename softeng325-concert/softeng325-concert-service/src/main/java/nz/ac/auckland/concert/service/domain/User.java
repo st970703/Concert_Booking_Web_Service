@@ -15,17 +15,16 @@ public class User {
 	@Column(nullable = false, name = "PASSWORD")
 	private String _password;
 
-	@Column(nullable = false, name = "FIRST_NAME")
+	@Column(name = "FIRST_NAME")
 	private String _firstname;
 
-	@Column(nullable = false, name = "LAST_NAME")
+	@Column(name = "LAST_NAME")
 	private String _lastname;
 
 	private CreditCard _cCard;
 
-	@OneToOne(optional = false,cascade = {CascadeType.PERSIST,CascadeType.REMOVE}, fetch = FetchType.LAZY )
-	@JoinColumn(name="USER_TOKEN",unique=true )
-	private Token _userToken;
+	@Column(name = "TOKEN")
+	private String _tokenKey;
 
 	@OneToMany
 	@JoinColumn(name = "RESERVATION")
@@ -50,7 +49,7 @@ public class User {
 	/*public User(String username, String password) {
 		this(username, password, null, null, null, null);
 	}*/
-	
+
 	public CreditCard getCreditCard() {
 		return _cCard;
 	}
@@ -72,6 +71,16 @@ public class User {
 	}
 
 	public String getId() {return _username;}
+
+	public String getToken() {
+		return _tokenKey;
+	}
+
+	public void setToken(String tokenKey) {
+		if (tokenKey != null) {
+			_tokenKey = tokenKey;
+		}
+	}
 
 	@Override
 	public boolean equals(Object obj) {
