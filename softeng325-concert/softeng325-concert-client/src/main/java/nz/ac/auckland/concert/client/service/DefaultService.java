@@ -256,7 +256,7 @@ public class DefaultService implements ConcertService {
 
 		return image;
 	}
-}
+
 
 	@Override
 
