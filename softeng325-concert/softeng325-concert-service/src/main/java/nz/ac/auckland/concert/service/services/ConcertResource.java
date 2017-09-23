@@ -18,10 +18,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import javax.ws.rs.*;
-import javax.ws.rs.core.Cookie;
-import javax.ws.rs.core.GenericEntity;
-import javax.ws.rs.core.NewCookie;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 import java.net.URI;
@@ -370,121 +367,6 @@ public class ConcertResource {
 
 		return response.build();
 	}
-
-
-//	@POST
-//	@Path("reservation")
-//	@Consumes(javax.ws.rs.core.MediaType.APPLICATION_XML)
-//	@Produces(javax.ws.rs.core.MediaType.APPLICATION_XML)
-//	public Response makeReservation(nz.ac.auckland.concert.common.dto.ReservationRequestDTO dtoReservationRequest, @CookieParam("clientUsername") Cookie token) {
-//
-//		Cookie storedToken = authenticateToken(token);
-//
-//		EntityManager em = null;
-//		ResponseBuilder response = null;
-//		try {
-//
-//			em = PersistenceManager.instance().createEntityManager();
-//
-//
-//			if(dtoReservationRequest.getConcertId() == null || dtoReservationRequest.getDate() == null || dtoReservationRequest.getNumberOfSeats() <= 0 || dtoReservationRequest.getSeatType() == null){
-//				throw new BadRequestException(Response
-//						.status (Status.BAD_REQUEST)
-//						.entity (Messages.RESERVATION_REQUEST_WITH_MISSING_FIELDS)
-//						.build());
-//			}
-//
-//			Set<Seat> bookedSeats = new HashSet<Seat>();
-//			Set<Seat> avilableSeats = new HashSet<Seat>();
-//			Set<Seat> reservedSeats = new HashSet<Seat>();
-//
-//			em.getTransaction().begin();
-//
-//			Concert concert = em.find(Concert.class, dtoReservationRequest.getConcertId());
-//
-//			TypedQuery<Booking> bookingQuery = em.createQuery("select c from " + Booking.class.getName() +  " c where CONCERT_CID = (:concertID)", Booking.class);
-//			bookingQuery.setParameter("concertID", dtoReservationRequest.getConcertId());
-//			List<Booking> bookings = bookingQuery.getResultList();
-//
-//			User user = storedToken.getUser();
-//
-//			em.getTransaction().commit();
-//
-//			if(!concert.getDates().contains(dtoReservationRequest.getDate())){
-//				throw new BadRequestException(Response
-//						.status (Status.BAD_REQUEST)
-//						.entity (Messages.CONCERT_NOT_SCHEDULED_ON_RESERVATION_DATE)
-//						.build());
-//			}
-//
-//
-//			for(Booking booking : bookings){
-//				for(Seat bookedSeat : booking.getSeats()){
-//					bookedSeats.add(bookedSeat);
-//				}
-//			}
-//
-//			Set<SeatRow> seatRows = TheatreLayout.getRowsForPriceBand(dtoReservationRequest.getSeatType());
-//
-//			for(SeatRow row : seatRows){
-//				int number_of_rows = TheatreLayout.getNumberOfSeatsForRow(row);
-//
-//				for(int i = 1; i < number_of_rows + 1; i++){
-//					/*_logger.debug("Created seat, row: " + row.name() + " number: " + i);*/
-//					Seat seat = new Seat(row, new SeatNumber(i));
-//
-//					if(!bookedSeats.contains(seat)){
-//						avilableSeats.add(seat);
-//					}
-//				}
-//			}
-//
-//			if(avilableSeats.size() < dtoReservationRequest.getNumberOfSeats()){
-//				throw new BadRequestException(Response
-//						.status (Status.BAD_REQUEST)
-//						.entity (Messages.INSUFFICIENT_SEATS_AVAILABLE_FOR_RESERVATION)
-//						.build());
-//			}
-//
-//			int seatsToReserve = dtoReservationRequest.getNumberOfSeats();
-//			for(Seat seat : avilableSeats){
-//				reservedSeats.add(seat);
-//				seatsToReserve--;
-//				if(seatsToReserve == 0){
-//					break;
-//				}
-//			}
-//
-//			Reservation reservation = new Reservation(dtoReservationRequest.getSeatType(), concert, dtoReservationRequest.getDate() , reservedSeats);
-//
-//			Booking newBooking = new Booking(concert, dtoReservationRequest.getDate(),reservedSeats ,dtoReservationRequest.getSeatType());
-//
-//			em.getTransaction().begin();
-//
-//			em.persist(reservation);
-//
-//			em.persist(newBooking);
-//
-//			user.addReservation(reservation);
-//
-//			em.merge(user);
-//
-//			em.getTransaction().commit();
-//
-//			ReservationDTO dtoReservation = ReservationMapper.toDto(reservation, dtoReservationRequest);
-//
-//			response = Response.ok().entity(dtoReservation);
-//
-//			deleteReservationUponExpiry(reservation.getId(), newBooking.getId(), user.getUsername());
-//
-//		} finally {
-//			if (em != null && em.isOpen()) {
-//				em.close ();
-//			}
-//		}
-//
-//		return response.build();
-//	}
 
 	/**
 	 * helper

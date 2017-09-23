@@ -56,10 +56,6 @@ public class Booking {
 		_priceBand = priceBand;
 	}
 
-//	public Long getId() {
-//		return _id;
-//	}
-
 	public Concert getConcert() {
 		return _concert;
 	}

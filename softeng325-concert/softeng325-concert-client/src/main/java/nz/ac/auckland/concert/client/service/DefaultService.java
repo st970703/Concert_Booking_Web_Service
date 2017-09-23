@@ -259,18 +259,75 @@ public class DefaultService implements ConcertService {
 
 
 	@Override
-
 	public ReservationDTO reserveSeats(ReservationRequestDTO reservationRequest) throws ServiceException {
-		// TODO Auto-generated method stub
-		return null;
+		Client client = ClientBuilder.newClient();
+
+		Invocation.Builder builder = client.target(
+				WEB_SERVICE_URI + "resources/reservation").request();
+		addCookieToBuilder(builder);
+
+		Response response = builder.post(
+				Entity.xml(reservationRequest));
+
+		ReservationDTO dtoReservation = new ReservationDTO();
+
+		String errorMessage;
+		int responseCode = response.getStatus();
+		switch (responseCode){
+			case 400:
+				errorMessage = response.readEntity (String.class);
+				throw new ServiceException(errorMessage);
+			case 401:
+				errorMessage = response.readEntity (String.class);
+				throw new ServiceException(errorMessage);
+			case 200:
+				dtoReservation = response.readEntity(ReservationDTO.class);
+				break;
+			default:
+				throw new ServiceException(Messages.SERVICE_COMMUNICATION_ERROR);
+		}
+
+		response.close();
+		client.close();
+
+		return dtoReservation;
 	}
 
 	@Override
-	//	@POST
-	//	@Consumes({ APPLICATION_XML })
 	public void confirmReservation(ReservationDTO reservation) throws ServiceException {
-		// TODO Auto-generated method stub
+		Client client = ClientBuilder.newClient();
 
+		Invocation.Builder builder = client.target(
+				WEB_SERVICE_URI + "reservation/confirm/").request();
+		addCookieToBuilder(builder);
+
+		Response response = builder.post(
+				Entity.xml(reservation));
+
+		String errorMessage;
+		int responseCode = response.getStatus();
+		switch (responseCode){
+			case 400:
+				errorMessage = response.readEntity (String.class);
+				throw new ServiceException(errorMessage);
+			case 401:
+				errorMessage = response.readEntity (String.class);
+				throw new ServiceException(errorMessage);
+			case 404:
+				errorMessage = response.readEntity (String.class);
+				throw new ServiceException(errorMessage);
+			case 200:
+				break;
+			case 201:
+				break;
+			default:
+				throw new ServiceException(Messages.SERVICE_COMMUNICATION_ERROR);
+		}
+
+		response.close();
+		client.close();
+
+		return;
 	}
 
 	@Override
@@ -308,20 +365,40 @@ public class DefaultService implements ConcertService {
 
 
 	@Override
-	//	@GET
-	//	@Path("{id}")
-	//	@Produces({ APPLICATION_XML })
 	public Set<BookingDTO> getBookings() throws ServiceException {
-		// TODO Auto-generated method stub
-		return null;
+		Client client = ClientBuilder.newClient();
+
+		Invocation.Builder builder = client.target(
+				WEB_SERVICE_URI + "/bookings").request();
+		addCookieToBuilder(builder);
+		Response response = builder.get();
+
+		Set<BookingDTO> bDtos = new HashSet<>();
+
+		int responseCode = response.getStatus();
+		switch (responseCode){
+			case 401:
+				String errorMessage = response.readEntity (String.class);
+				throw new ServiceException(errorMessage);
+			case 200:
+				bDtos = response.readEntity(new GenericType<Set<nz.ac.auckland.concert.common.dto.BookingDTO>>(){});
+			case 201:
+				break;
+			case 204:
+				break;
+			default:
+				throw new ServiceException(Messages.SERVICE_COMMUNICATION_ERROR);
+		}
+
+		response.close();
+		client.close();
+
+		return bDtos;
 	}
 
 	@Override
-	//	@POST
-	//	@Consumes({ APPLICATION_XML })
 	public void subscribeForNewsItems(NewsItemListener listener) {
 		throw new UnsupportedOperationException();
-
 	}
 
 	@Override
