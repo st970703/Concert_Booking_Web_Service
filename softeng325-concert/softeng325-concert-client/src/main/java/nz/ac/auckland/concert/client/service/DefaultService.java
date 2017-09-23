@@ -207,18 +207,28 @@ public class DefaultService implements ConcertService {
 	public void registerCreditCard(CreditCardDTO creditCard) throws ServiceException {
 		Client client = ClientBuilder.newClient();
 
-		Invocation.Builder builder = client.target(WEB_SERVICE_URI + "/users/creditcard").request();
+		Invocation.Builder builder = client.target(WEB_SERVICE_URI + "/resources/creditcard").request();
 		addCookieToBuilder(builder);
 
 		Response response = builder.post(Entity.xml(creditCard));
 
 		processCookie(response);
 
-		int statusCode = response.getStatus();
-		switch (statusCode){
+		int responseCode = response.getStatus();
+		System.out.println("registerCreditCard switch (responseCode)"+responseCode);
+
+		switch (responseCode){
 			case 401:
 				String errorMessage = response.readEntity (String.class);
 				throw new ServiceException(errorMessage);
+			case 200:
+				break;
+			case 201:
+				break;
+			case 204:
+				break;
+			default:
+				throw new ServiceException(Messages.SERVICE_COMMUNICATION_ERROR);
 		}
 
 		response.close();

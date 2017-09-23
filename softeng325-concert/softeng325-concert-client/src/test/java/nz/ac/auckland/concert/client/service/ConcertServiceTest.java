@@ -375,6 +375,7 @@ public class ConcertServiceTest {
 			CreditCardDTO creditCard = new CreditCardDTO(CreditCardDTO.Type.Visa, "Winston Churchill", "4929-1500-0055-9544", LocalDate.of(2019, 7, 31));
 			_service.registerCreditCard(creditCard);
 		} catch(ServiceException e) {
+			System.out.println("testRegisterCreditCard()"+e.getMessage());
 			fail();
 		}
 	}
@@ -386,7 +387,6 @@ public class ConcertServiceTest {
 			_service.registerCreditCard(creditCard);
 			fail();
 		} catch(ServiceException e) {
-			System.out.println("testRegisterCreditCardWithUnauthenticatedUser()" + e.getMessage());
 			assertEquals(Messages.UNAUTHENTICATED_REQUEST, e.getMessage());
 		}
 	}

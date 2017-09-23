@@ -219,7 +219,6 @@ public class ConcertResource {
 			//condition: wrong password
 			boolean wrongPassword = !uQuery.getPassword().equals(uDto.getPassword());
 			if(wrongPassword){
-				System.out.println("if(wrongPassword)");
 				throw new NotAuthorizedException(Response
 						.status (Status.UNAUTHORIZED)
 						.entity (Messages.AUTHENTICATE_USER_WITH_ILLEGAL_PASSWORD)
@@ -329,7 +328,7 @@ public class ConcertResource {
 	}
 
 	@POST
-	@Path("creditcard")
+	@Path("/creditcard")
 	@Consumes({APPLICATION_XML})
 	@Produces({ APPLICATION_XML })
 	public Response registerCreditCard(
@@ -342,19 +341,18 @@ public class ConcertResource {
 		ResponseBuilder response;
 
 		try {
-
 			em = PersistenceManager.instance().createEntityManager();
 			em.getTransaction().begin();
 
-			String userName = clientId.getValue();
-			TypedQuery<User> usertQuery = em.createQuery("select u from User u where u._username = :uName", User.class)
-					.setParameter("uName", userName);
+			String tokenKey = clientId.getValue();
+			System.out.println("clientId.getValue()"+tokenKey);
+
+			TypedQuery<User> usertQuery = em.createQuery("select u from User u where u._tokenKey = :tKey", User.class)
+					.setParameter("tKey", tokenKey);
 			User user = usertQuery.getSingleResult();
 			_logger.debug("Found user with username " + user.getUsername());
 
-			user.setToken(clientId.getValue());
-
-			em.getTransaction().begin();
+			user.setCreditCard(CreditCardMapper.toDomainModel(creditCardDTO));
 			em.persist(user);
 			em.getTransaction().commit();
 
@@ -526,7 +524,7 @@ public class ConcertResource {
 
 		String tokenKey = findUser.getToken();
 
-		if(!tokenKey.equals(Config.CLIENT_COOKIE)
+		if(!cookie.getName().equals(Config.CLIENT_COOKIE)
 				|| tokenKey == null){
 			throw new NotAuthorizedException(Response
 					.status (Status.UNAUTHORIZED)
