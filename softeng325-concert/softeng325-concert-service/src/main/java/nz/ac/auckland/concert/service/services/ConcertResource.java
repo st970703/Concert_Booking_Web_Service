@@ -345,7 +345,6 @@ public class ConcertResource {
 			em.getTransaction().begin();
 
 			String tokenKey = clientId.getValue();
-			System.out.println("clientId.getValue()"+tokenKey);
 
 			TypedQuery<User> usertQuery = em.createQuery("select u from User u where u._tokenKey = :tKey", User.class)
 					.setParameter("tKey", tokenKey);

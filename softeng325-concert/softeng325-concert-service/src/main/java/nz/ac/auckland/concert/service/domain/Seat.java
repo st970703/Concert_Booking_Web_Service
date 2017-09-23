@@ -27,6 +27,9 @@ public class Seat {
 	@Column(nullable = false, name = "NUMBER")
 	private SeatNumber _number;
 
+	@Column(name = "AVAILABILITY")
+	private Availability _status = Availability.Available;
+
 	public Seat() {}
 
 	public Seat(SeatRow row, SeatNumber number, Concert concert) {

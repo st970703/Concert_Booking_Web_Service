@@ -123,7 +123,6 @@ public class DefaultService implements ConcertService {
 		int responseCode = response.getStatus ();
 
 		String errorMessage;
-		System.out.println("switch (responseCode)"+responseCode);
 
 		switch (responseCode) {
 			case 400:
@@ -165,8 +164,6 @@ public class DefaultService implements ConcertService {
 		switch (responseCode) {
 			case 401:
 				errorMessage = response.readEntity (String.class);
-
-				System.out.println(errorMessage);
 
 				throw new ServiceException(errorMessage);
 			case 200:
@@ -215,7 +212,6 @@ public class DefaultService implements ConcertService {
 		processCookie(response);
 
 		int responseCode = response.getStatus();
-		System.out.println("registerCreditCard switch (responseCode)"+responseCode);
 
 		switch (responseCode){
 			case 401:

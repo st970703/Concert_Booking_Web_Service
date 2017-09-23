@@ -46,6 +46,14 @@ public class Reservation {
 		_confirmed = false;
 	}
 
+	public void setConfirmed() {
+		_confirmed = true;
+	}
+
+	public boolean getConfirmed() {
+		return _confirmed;
+	}
+
 	public PriceBand getSeatType() {
 		return _seatType;
 	}

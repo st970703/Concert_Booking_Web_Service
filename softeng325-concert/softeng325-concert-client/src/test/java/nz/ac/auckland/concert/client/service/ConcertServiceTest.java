@@ -120,7 +120,6 @@ public class ConcertServiceTest {
 			UserDTO userDTO = new UserDTO("Bulldog", "123", "Churchill", "Winston");
 			_service.createUser(userDTO);
 		} catch(ServiceException e) {
-			System.out.println("testCreateUser()"+e.getMessage());
 			fail();
 		}
 	}
@@ -148,7 +147,6 @@ public class ConcertServiceTest {
 			_service.createUser(userDTO);
 			fail();
 		} catch(ServiceException e) {
-			System.out.println("testCreateUserWithDuplicateUsername()"+e.getMessage());
 			if(!createdFirstUser) {
 				fail();
 			}
@@ -165,10 +163,8 @@ public class ConcertServiceTest {
 			UserDTO credentials = new UserDTO("Bulldog", "123");
 			UserDTO filledDTO = _service.authenticateUser(credentials);
 
-			System.out.println("assertEquals(userDTO, filledDTO)"+userDTO.toString()+filledDTO.toString());
 			assertEquals(userDTO, filledDTO);
 		} catch(ServiceException e) {
-			System.out.println(e.getMessage());
 			fail();
 		}
 	}
@@ -194,7 +190,6 @@ public class ConcertServiceTest {
 			_service.authenticateUser(credentials);
 			fail();
 		} catch(ServiceException e) {
-			System.out.println("testAuthenticateUserWithIncorrectPassword()"+e.getMessage());
 			assertEquals(Messages.AUTHENTICATE_USER_WITH_ILLEGAL_PASSWORD, e.getMessage());
 		}
 	}
@@ -209,7 +204,6 @@ public class ConcertServiceTest {
 			_service.authenticateUser(credentials);
 			fail();
 		} catch(ServiceException e) {
-			System.out.println("testAuthenticateUserWithMissingPassword()"+e.getMessage());
 			assertEquals(Messages.AUTHENTICATE_USER_WITH_MISSING_FIELDS, e.getMessage());
 		}
 	}
@@ -375,7 +369,6 @@ public class ConcertServiceTest {
 			CreditCardDTO creditCard = new CreditCardDTO(CreditCardDTO.Type.Visa, "Winston Churchill", "4929-1500-0055-9544", LocalDate.of(2019, 7, 31));
 			_service.registerCreditCard(creditCard);
 		} catch(ServiceException e) {
-			System.out.println("testRegisterCreditCard()"+e.getMessage());
 			fail();
 		}
 	}
