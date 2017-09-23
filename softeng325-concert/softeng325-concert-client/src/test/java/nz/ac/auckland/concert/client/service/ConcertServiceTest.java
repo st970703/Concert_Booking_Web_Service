@@ -334,32 +334,32 @@ public class ConcertServiceTest {
 		}
 	}
 
-//	@Test
-//	public void testConfirmReservationWithoutRegisteredCreditCard() {
-//		try {
-//			final int numberOfSeatsToBook = 6;
-//
-//			// Create a User.
-//			UserDTO userDTO = new UserDTO("Bulldog", "123", "Churchill", "Winston");
-//			_service.createUser(userDTO);
-//
-//			// Make a reservation.
-//			LocalDateTime dateTime = LocalDateTime.of(2017, 2, 24, 17, 00);
-//			ReservationRequestDTO request = new ReservationRequestDTO(numberOfSeatsToBook, PriceBand.PriceBandB, 1L, dateTime);
-//			ReservationDTO reservation = _service.reserveSeats(request);
-//
-//			// Attempt to confirm the reservation.
-//			_service.confirmReservation(reservation);
-//			fail();
-//		} catch(ServiceException e) {
-//			assertEquals(Messages.CREDIT_CARD_NOT_REGISTERED, e.getMessage());
-//		} finally {
-//			// Make a request to check that this user doesn't have a booking.
-//			Set<BookingDTO> bookings = _service.getBookings();
-//			assertTrue(bookings.isEmpty());
-//		}
-//	}
-//
+	@Test
+	public void testConfirmReservationWithoutRegisteredCreditCard() {
+		try {
+			final int numberOfSeatsToBook = 6;
+
+			// Create a User.
+			UserDTO userDTO = new UserDTO("Bulldog", "123", "Churchill", "Winston");
+			_service.createUser(userDTO);
+
+			// Make a reservation.
+			LocalDateTime dateTime = LocalDateTime.of(2017, 2, 24, 17, 00);
+			ReservationRequestDTO request = new ReservationRequestDTO(numberOfSeatsToBook, PriceBand.PriceBandB, 1L, dateTime);
+			ReservationDTO reservation = _service.reserveSeats(request);
+
+			// Attempt to confirm the reservation.
+			_service.confirmReservation(reservation);
+			fail();
+		} catch(ServiceException e) {
+			assertEquals(Messages.CREDIT_CARD_NOT_REGISTERED, e.getMessage());
+		} finally {
+			// Make a request to check that this user doesn't have a booking.
+			Set<BookingDTO> bookings = _service.getBookings();
+			assertTrue(bookings.isEmpty());
+		}
+	}
+
 	@Test
 	public void testRegisterCreditCard() {
 		try {

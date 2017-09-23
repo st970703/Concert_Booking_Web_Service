@@ -3,6 +3,7 @@ package nz.ac.auckland.concert.service.services;
 import nz.ac.auckland.concert.common.Config;
 import nz.ac.auckland.concert.common.dto.ConcertDTO;
 import nz.ac.auckland.concert.common.dto.PerformerDTO;
+import nz.ac.auckland.concert.common.dto.ReservationRequestDTO;
 import nz.ac.auckland.concert.common.dto.UserDTO;
 import nz.ac.auckland.concert.common.message.Messages;
 import nz.ac.auckland.concert.common.types.SeatNumber;
@@ -249,7 +250,7 @@ public class ConcertResource {
 	@Path("/reservation")
 	@Consumes({APPLICATION_XML})
 	@Produces({ APPLICATION_XML })
-	public Response makeReservation(nz.ac.auckland.concert.common.dto.ReservationRequestDTO dtoReservationRequest, @CookieParam("clientId") Cookie clientId) {
+	public Response makeReservation(ReservationRequestDTO dtoReservationRequest, @CookieParam("clientId") Cookie clientId) {
 		NewCookie cookie = authenticateCookie(clientId);
 
 		if (dtoReservationRequest.getConcertId() == null
@@ -262,9 +263,9 @@ public class ConcertResource {
 					.build());
 		}
 
-		Set<Seat> bookedSeats = new HashSet<Seat>();
-		Set<Seat> availableSeats = new HashSet<Seat>();
-		Set<Seat> reservedSeats = new HashSet<Seat>();
+		Set<Seat> bookedSeats = new HashSet<>();
+		Set<Seat> availableSeats = new HashSet<>();
+		Set<Seat> reservedSeats = new HashSet<>();
 
 		PersistenceManager pManager = PersistenceManager.instance();
 		EntityManager eManager = pManager.createEntityManager();
@@ -273,13 +274,17 @@ public class ConcertResource {
 
 		Concert concert = eManager.find(Concert.class, dtoReservationRequest.getConcertId());
 
-		TypedQuery<Booking> bookingQuery = eManager.createQuery("select c from " + Booking.class.getName() + " c where CONCERT_CID = (:concertID)", Booking.class);
+		TypedQuery<Booking> bookingQuery = eManager.createQuery("select c from "
+				+ Booking.class.getName()
+				+" c where c.CONCERT = (:concertID) and DATE = (:date) and PRICEBAND = (:priceband)", Booking.class);
 		bookingQuery.setParameter("concertID", dtoReservationRequest.getConcertId());
+		bookingQuery.setParameter("date", dtoReservationRequest.getDate());
+		bookingQuery.setParameter("priceband", dtoReservationRequest.getSeatType().toString());
 		List<Booking> bookings = bookingQuery.getResultList();
 
-		//User user = cookie.getUser();
+		//TypedQuery<User> userQuery =
 
-		eManager.getTransaction().commit();
+		//eManager.getTransaction().commit();
 
 		if (!concert.getDates().contains(dtoReservationRequest.getDate())) {
 			throw new BadRequestException(Response
