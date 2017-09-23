@@ -3,14 +3,19 @@ package nz.ac.auckland.concert.client.service;
 import nz.ac.auckland.concert.common.Config;
 import nz.ac.auckland.concert.common.dto.*;
 import nz.ac.auckland.concert.common.message.Messages;
+import nz.ac.auckland.concert.service.domain.Concert;
+import nz.ac.auckland.concert.service.domain.CreditCard;
+import nz.ac.auckland.concert.service.domain.User;
 import nz.ac.auckland.concert.service.services.PersistenceManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
@@ -199,11 +204,27 @@ public class DefaultService implements ConcertService {
 	}
 
 	@Override
-	//	@POST
-	//	@Consumes({ APPLICATION_XML })
 	public void registerCreditCard(CreditCardDTO creditCard) throws ServiceException {
-		// TODO Auto-generated method stub
+		Client client = ClientBuilder.newClient();
 
+		Invocation.Builder builder = client.target(WEB_SERVICE_URI + "/users/creditcard").request();
+		addCookieToBuilder(builder);
+
+		Response response = builder.post(Entity.xml(creditCard));
+
+		processCookie(response);
+
+		int statusCode = response.getStatus();
+		switch (statusCode){
+			case 401:
+				String errorMessage = response.readEntity (String.class);
+				throw new ServiceException(errorMessage);
+		}
+
+		response.close();
+		client.close();
+
+		return;
 	}
 
 
@@ -242,5 +263,16 @@ public class DefaultService implements ConcertService {
 			NewCookie getCookie = cookies.get(Config.CLIENT_COOKIE);
 			_storedCookie = getCookie;
 		}
+	}
+
+	/**
+	 * helper
+	 * @param builder
+	 */
+	private void addCookieToBuilder(Invocation.Builder builder) {
+		if(_storedCookie != null) {
+			builder.cookie(Config.CLIENT_COOKIE, _storedCookie.getValue());
+		}
+		return;
 	}
 }

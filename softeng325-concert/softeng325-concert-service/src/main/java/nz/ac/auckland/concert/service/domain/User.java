@@ -21,8 +21,6 @@ public class User {
 	@Column(name = "LAST_NAME")
 	private String _lastname;
 
-	private CreditCard _cCard;
-
 	@Column(name = "TOKEN")
 	private String _tokenKey;
 
@@ -30,25 +28,27 @@ public class User {
 	@JoinColumn(name = "RESERVATION")
 	private Set<Reservation> _reservations;
 
-	@ElementCollection
-	@CollectionTable( name = "CREDITCARD")
-	private Set<CreditCard> _creditCards;
+	@Column( name = "CREDITCARD")
+	private CreditCard _cCard;
 
 	public User() {}
 
-	public User(String username, String password, String lastname, String firstname, CreditCard cCard, Set<Reservation> reservations, Set<CreditCard> creditCards) {
+	public User(String username, String password, String lastname, String firstname) {
+		this(username, password, lastname, firstname, null, null);
+	}
+
+	public User(String username, String password, String lastname, String firstname, CreditCard cCard, Set<Reservation> reservations) {
 		_username = username;
 		_password = password;
 		_lastname = lastname;
 		_firstname = firstname;
-		_cCard = cCard;
 		_reservations = reservations;
-		_creditCards = creditCards;
+		_cCard = cCard;
 	}
 
-	/*public User(String username, String password) {
+	public User(String username, String password) {
 		this(username, password, null, null, null, null);
-	}*/
+	}
 
 	public CreditCard getCreditCard() {
 		return _cCard;
@@ -60,6 +60,10 @@ public class User {
 
 	public String getPassword() {
 		return _password;
+	}
+
+	public void setCreditCard(CreditCard creditCard) {
+		_cCard = creditCard;
 	}
 
 	public String getFirstname() {

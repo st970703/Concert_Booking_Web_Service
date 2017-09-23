@@ -20,10 +20,7 @@ public class UserMapper {
 				uDto.getUsername(),
 				uDto.getPassword(),
 				uDto.getLastname(),
-				uDto.getFirstname(),
-				null,
-				null,
-				null
+				uDto.getFirstname()
 		);
 
 		return user;

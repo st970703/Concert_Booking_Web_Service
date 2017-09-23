@@ -29,7 +29,7 @@ public class ConcertApplication extends Application {
 
 	private static Logger _logger = LoggerFactory
 			.getLogger(ConcertResource.class);
-	
+
 	// Constructor called by JAX−RS.
 	public ConcertApplication () {
 		_classes.add(ConcertResource.class);
@@ -41,8 +41,10 @@ public class ConcertApplication extends Application {
 			em.getTransaction().begin();
 
 			// Delete all existing entities of some type, e. g. MyEntity.
+			em.createQuery("delete from NewsItem").executeUpdate();
 			em.createQuery("delete from User").executeUpdate();
-
+			em.createQuery("delete from Reservation").executeUpdate();
+			em.createQuery("delete from Seat").executeUpdate();
 
 			em.getTransaction ().commit();
 		} catch(Exception e) {
