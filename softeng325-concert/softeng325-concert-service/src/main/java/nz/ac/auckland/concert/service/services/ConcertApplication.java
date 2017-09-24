@@ -44,6 +44,7 @@ public class ConcertApplication extends Application {
 			em = PersistenceManager.instance().createEntityManager();
 			em.getTransaction().begin();
 
+			// Clear DB content
 			TypedQuery<Booking> bookingQuery = em.createQuery("select b from " + Booking.class.getName() +  " b", Booking.class);
 			List<Booking> bookings = bookingQuery.getResultList();
 
@@ -69,7 +70,7 @@ public class ConcertApplication extends Application {
 			em.clear();
 			em.getTransaction (). commit();
 		} catch(Exception e) {
-			// Process and log the exception .
+			// Process and log the exception.
 			_logger.debug(e.getMessage());
 		} finally {
 			if (em != null && em.isOpen()) {
@@ -78,9 +79,9 @@ public class ConcertApplication extends Application {
 		}
 	}
 
-	private Set<Object> _singletons = new HashSet<Object>();
+	private Set<Object> _singletons = new HashSet<>();
 
-	private Set<Class<?>> _classes = new HashSet<Class<?>>();
+	private Set<Class<?>> _classes = new HashSet<>();
 
 	@Override
 	public Set<Class<?>> getClasses() {
