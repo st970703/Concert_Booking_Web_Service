@@ -265,7 +265,7 @@ public class ConcertResource {
 	@Produces({ APPLICATION_XML })
 	public Response makeReservation(ReservationRequestDTO dtoReservationRequest,
 									@CookieParam("clientId") Cookie clientId) {
-		_logger.debug("makeReservation() "+dtoReservationRequest.toString()+ ", "+ clientId.toString());
+		//_logger.debug("makeReservation() "+dtoReservationRequest.toString()+ ", "+ clientId.toString());
 		authenticateCookie(clientId);
 
 		EntityManager em = null;
@@ -372,22 +372,22 @@ public class ConcertResource {
 
 			em.persist(newBooking);
 
-			Reservation reservation = new Reservation(dtoReservationRequest.getSeatType(),
+			Reservation newReservation = new Reservation(dtoReservationRequest.getSeatType(),
 					concert,
 					dtoReservationRequest.getDate(),
 					reservedSeats,
 					newBooking.getId());
 
-			em.persist(reservation);
+			em.persist(newReservation);
 
-			findUser.addReservation(reservation);
+			findUser.addReservation(newReservation);
 
 			em.merge(findUser);
 
 			em.getTransaction().commit();
 
 			ReservationDTO dtoReservation = ReservationMapper.toDto(
-					reservation,
+					newReservation,
 					dtoReservationRequest);
 
 			response = Response
@@ -395,7 +395,7 @@ public class ConcertResource {
 					.entity(dtoReservation);
 
 			deleteExpiredReservation(
-					reservation.getId(),
+					newReservation.getId(),
 					newBooking.getId(),
 					findUser.getUsername());
 
@@ -405,6 +405,72 @@ public class ConcertResource {
 			}
 		}
 
+		return response.build();
+	}
+
+	@POST
+	@Path("/confirm")
+	@Consumes(APPLICATION_XML)
+	@Produces(APPLICATION_XML)
+	public Response confirmReservation(nz.ac.auckland.concert.common.dto.ReservationDTO reservation, @CookieParam("clientId") Cookie clientId) {
+
+		_logger.debug("Start to confirm reservation: " + reservation.getId());
+
+		authenticateCookie(clientId);
+
+		EntityManager em = null;
+		ResponseBuilder response;
+		try {
+			em = PersistenceManager.instance().createEntityManager();
+
+			em.getTransaction().begin();
+			Long rId = reservation.getId();
+			TypedQuery<User> userQuery = em
+					.createQuery("select u from User u where u._tokenKey = :token", User.class)
+					.setParameter("token", clientId.getValue());
+			User findUser = userQuery.getSingleResult();
+			Reservation storedReservation = em.find(Reservation.class, reservation.getId());
+			CreditCard cCard = findUser.getCreditCard();
+			em.getTransaction().commit();
+
+			if(storedReservation == null){
+				_logger.debug(Messages.EXPIRED_RESERVATION);
+				throw new NotFoundException(
+						Response.status (Status.NOT_FOUND)
+						.entity (Messages.EXPIRED_RESERVATION)
+						.build());
+			}
+
+			if(cCard == null){
+				_logger.debug(Messages.CREDIT_CARD_NOT_REGISTERED);
+
+				Long bId = storedReservation.getBookingId();
+				deleteReservation(storedReservation.getId(),
+						bId,
+						findUser.getUsername());
+
+				throw new BadRequestException(
+						Response.status (Status.BAD_REQUEST)
+						.entity(Messages.CREDIT_CARD_NOT_REGISTERED)
+						.build());
+			}
+
+			storedReservation.setConfirmed(true);
+
+			em.getTransaction().begin();
+
+			em.merge(storedReservation);
+
+			em.getTransaction().commit();
+
+			_logger.debug("Reservation " + reservation.getId() + " confirmed!");
+
+			response = Response.noContent();
+		} finally {
+			if (em != null && em.isOpen()) {
+				em.close ();
+			}
+		}
 		return response.build();
 	}
 
@@ -433,7 +499,7 @@ public class ConcertResource {
 			_logger.debug("Found user with username " + user.getUsername());
 
 			user.setCreditCard(CreditCardMapper.toDomainModel(creditCardDTO));
-			em.persist(user);
+			em.merge(user);
 			em.getTransaction().commit();
 
 			response = Response.noContent();
@@ -448,7 +514,7 @@ public class ConcertResource {
 	}
 
 	@GET
-	@Path("bookings")
+	@Path("/bookings")
 	@Produces(javax.ws.rs.core.MediaType.APPLICATION_XML)
 	public Response getBookings(@CookieParam("clientId") Cookie clientId) {
 		authenticateCookie(clientId);
@@ -549,6 +615,7 @@ public class ConcertResource {
 
 		if(!cookie.getName().equals(Config.CLIENT_COOKIE)
 				|| tokenKey == null){
+			_logger.debug("BAD_AUTHENTICATON_TOKEN");
 			throw new NotAuthorizedException(Response
 					.status (Status.UNAUTHORIZED)
 					.entity (Messages.BAD_AUTHENTICATON_TOKEN)
@@ -603,19 +670,18 @@ public class ConcertResource {
 			em.getTransaction().commit();
 
 			if(storedReservation != null){
-				if(!storedReservation.getStatus()){
-
+				boolean notConfirmed = !storedReservation.getCConfirmed();
+				if(notConfirmed){
 					em.getTransaction().begin();
 
 					em.remove(storedReservation);
-
 					em.remove(booking);
 
 					User user = em.find(User.class, username);
 
 					user.removeReservation(storedReservation);
 
-					em.persist(user);
+					em.merge(user);
 
 					_logger.debug("Deleted reservation with Id = " + reservationID);
 

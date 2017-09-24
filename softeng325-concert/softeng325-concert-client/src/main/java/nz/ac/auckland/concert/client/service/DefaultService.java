@@ -293,7 +293,7 @@ public class DefaultService implements ConcertService {
 		Client client = ClientBuilder.newClient();
 
 		Invocation.Builder builder = client.target(
-				WEB_SERVICE_URI + "resources/confirm/").request();
+				WEB_SERVICE_URI + "/resources/confirm").request();
 		addCookieToBuilder(builder);
 
 		Response response = builder.post(
@@ -301,6 +301,7 @@ public class DefaultService implements ConcertService {
 
 		String errorMessage;
 		int responseCode = response.getStatus();
+		_logger.debug("confirmReservation() responseCode = "+responseCode);
 		switch (responseCode){
 			case 400:
 				errorMessage = response.readEntity (String.class);
@@ -314,6 +315,8 @@ public class DefaultService implements ConcertService {
 			case 200:
 				break;
 			case 201:
+				break;
+			case 204:
 				break;
 			default:
 				throw new ServiceException(Messages.SERVICE_COMMUNICATION_ERROR);

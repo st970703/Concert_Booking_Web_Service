@@ -76,11 +76,11 @@ public class Reservation {
 		return _bId;
 	}
 	
-	public boolean getStatus() {
+	public boolean getCConfirmed() {
 		return _confirmed;
 	}
 	
-	public void setStatus(boolean status) {
+	public void setConfirmed(boolean status) {
 		_confirmed = status;
 	}
 	

@@ -282,6 +282,7 @@ public class ConcertServiceTest {
 			assertEquals(reservation.getSeats(), bookingDTO.getSeats());
 			assertEquals(PriceBand.PriceBandC, bookingDTO.getPriceBand());
 		} catch(ServiceException e) {
+			_logger.debug("testConfirmReservation() e = "+e.getMessage());
 			fail();
 		}
 	}
