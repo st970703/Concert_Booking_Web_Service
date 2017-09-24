@@ -33,24 +33,19 @@ import java.util.Set;
 
 public class DefaultService implements ConcertService {
 
-	private static Logger _logger = LoggerFactory.getLogger(ConcertService.class);
-
-	private static String WEB_SERVICE_URI = "http://localhost:10000/services";
-
-	private NewCookie _storedCookie;
-
 	// AWS S3 access credentials for concert images.
 	private static final String AWS_ACCESS_KEY_ID = "AKIAIDYKYWWUZ65WGNJA";
 	private static final String AWS_SECRET_ACCESS_KEY = "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";
-
 	// Name of the S3 bucket that stores images.
 	private static final String AWS_BUCKET = "concert.aucklanduni.ac.nz";
-
 	private static final String FILE_SEPARATOR =
 			System.getProperty("file.separator");
 	private static final String USER_DIRECTORY = System.getProperty("user.home");
 	private static final String DOWNLOAD_DIRECTORY =
 			USER_DIRECTORY + FILE_SEPARATOR + "images";
+	private static Logger _logger = LoggerFactory.getLogger(ConcertService.class);
+	private static String WEB_SERVICE_URI = "http://localhost:10000/services";
+	private NewCookie _storedCookie;
 
 	@Override
 	public Set<ConcertDTO> getConcerts() throws ServiceException {
@@ -58,7 +53,7 @@ public class DefaultService implements ConcertService {
 		Set<ConcertDTO> cDtos = null;
 
 		Response response = client
-				.target(WEB_SERVICE_URI+"/resources/concerts/")
+				.target(WEB_SERVICE_URI + "/resources/concerts/")
 				.request()
 				.get();
 
@@ -76,7 +71,7 @@ public class DefaultService implements ConcertService {
 				break;
 			default:
 				//Condition: there is a communication error.
-				errorMessage = response.readEntity ( String.class );
+				errorMessage = response.readEntity(String.class);
 				if (errorMessage.equals(Messages.SERVICE_COMMUNICATION_ERROR)) {
 					throw new ServiceException(Messages.SERVICE_COMMUNICATION_ERROR);
 				}
@@ -94,12 +89,12 @@ public class DefaultService implements ConcertService {
 		Set<PerformerDTO> pDtos = null;
 
 		Response response = client
-				.target(WEB_SERVICE_URI+"/resources/performers/")
+				.target(WEB_SERVICE_URI + "/resources/performers/")
 				.request()
 				.get();
 
 		// Get the response code from the Response object.
-		int responseCode = response.getStatus ();
+		int responseCode = response.getStatus();
 
 		String errorMessage;
 		switch (responseCode) {
@@ -112,7 +107,7 @@ public class DefaultService implements ConcertService {
 				break;
 			default:
 				//Condition: there is a communication error.
-				errorMessage = response.readEntity ( String.class );
+				errorMessage = response.readEntity(String.class);
 				if (errorMessage.equals(Messages.SERVICE_COMMUNICATION_ERROR)) {
 					throw new ServiceException(Messages.SERVICE_COMMUNICATION_ERROR);
 				}
@@ -130,18 +125,18 @@ public class DefaultService implements ConcertService {
 		Client client = ClientBuilder.newClient();
 
 		Response response = client
-				.target(WEB_SERVICE_URI+"/resources/users/")
+				.target(WEB_SERVICE_URI + "/resources/users/")
 				.request()
 				.post(Entity.xml(newUser));
 
 		// Get the response code from the Response object.
-		int responseCode = response.getStatus ();
+		int responseCode = response.getStatus();
 
 		String errorMessage;
 
 		switch (responseCode) {
 			case 400:
-				errorMessage = response.readEntity (String.class);
+				errorMessage = response.readEntity(String.class);
 				throw new ServiceException(errorMessage);
 			case 201:
 				break;
@@ -164,21 +159,21 @@ public class DefaultService implements ConcertService {
 		Client client = ClientBuilder.newClient();
 
 		Response response = client
-				.target(WEB_SERVICE_URI+"/resources/authenticate")
+				.target(WEB_SERVICE_URI + "/resources/authenticate")
 				.request()
 				.post(Entity.xml(user));
 
 		processCookie(response);
 
 		// Get the response code from the Response object.
-		int responseCode = response.getStatus ();
+		int responseCode = response.getStatus();
 
 		UserDTO uDto;
 
 		String errorMessage;
 		switch (responseCode) {
 			case 401:
-				errorMessage = response.readEntity (String.class);
+				errorMessage = response.readEntity(String.class);
 				throw new ServiceException(errorMessage);
 			case 200:
 				uDto = response.readEntity(UserDTO.class);
@@ -260,13 +255,13 @@ public class DefaultService implements ConcertService {
 
 		String errorMessage;
 		int responseCode = response.getStatus();
-		_logger.debug("reserveSeats() responseCode ="+responseCode );
-		switch (responseCode){
+		_logger.debug("reserveSeats() responseCode =" + responseCode);
+		switch (responseCode) {
 			case 400:
-				errorMessage = response.readEntity (String.class);
+				errorMessage = response.readEntity(String.class);
 				throw new ServiceException(errorMessage);
 			case 401:
-				errorMessage = response.readEntity (String.class);
+				errorMessage = response.readEntity(String.class);
 				throw new ServiceException(errorMessage);
 			case 200:
 				rDto = response.readEntity(ReservationDTO.class);
@@ -294,17 +289,17 @@ public class DefaultService implements ConcertService {
 
 		String errorMessage;
 		int responseCode = response.getStatus();
-		_logger.debug("confirmReservation() responseCode = "+responseCode);
+		_logger.debug("confirmReservation() responseCode = " + responseCode);
 
-		switch (responseCode){
+		switch (responseCode) {
 			case 400:
-				errorMessage = response.readEntity (String.class);
+				errorMessage = response.readEntity(String.class);
 				throw new ServiceException(errorMessage);
 			case 401:
-				errorMessage = response.readEntity (String.class);
+				errorMessage = response.readEntity(String.class);
 				throw new ServiceException(errorMessage);
 			case 404:
-				errorMessage = response.readEntity (String.class);
+				errorMessage = response.readEntity(String.class);
 				throw new ServiceException(errorMessage);
 			case 200:
 				break;
@@ -335,9 +330,9 @@ public class DefaultService implements ConcertService {
 
 		int responseCode = response.getStatus();
 
-		switch (responseCode){
+		switch (responseCode) {
 			case 401:
-				String errorMessage = response.readEntity (String.class);
+				String errorMessage = response.readEntity(String.class);
 				throw new ServiceException(errorMessage);
 			case 200:
 				break;
@@ -369,12 +364,13 @@ public class DefaultService implements ConcertService {
 		Set<BookingDTO> bDtos = new HashSet<>();
 
 		int responseCode = response.getStatus();
-		switch (responseCode){
+		switch (responseCode) {
 			case 401:
-				String errorMessage = response.readEntity (String.class);
+				String errorMessage = response.readEntity(String.class);
 				throw new ServiceException(errorMessage);
 			case 200:
-				bDtos = response.readEntity(new GenericType<Set<nz.ac.auckland.concert.common.dto.BookingDTO>>(){});
+				bDtos = response.readEntity(new GenericType<Set<nz.ac.auckland.concert.common.dto.BookingDTO>>() {
+				});
 			case 201:
 				break;
 			case 204:
@@ -400,14 +396,14 @@ public class DefaultService implements ConcertService {
 	}
 
 	/**
-	 *  helper
+	 * helper
 	 */
 	private void processCookie(Response response) {
 		Map<String, NewCookie> cookies = response.getCookies();
 
 		boolean containsKey = cookies.containsKey(Config.CLIENT_COOKIE);
 
-		if (containsKey){
+		if (containsKey) {
 			NewCookie getCookie = cookies.get(Config.CLIENT_COOKIE);
 			_storedCookie = getCookie;
 		}
@@ -416,11 +412,12 @@ public class DefaultService implements ConcertService {
 
 	/**
 	 * helper
+	 *
 	 * @param builder
 	 */
 	private void addCookieToBuilder(Invocation.Builder builder) {
-		if(_storedCookie != null) {
-			_logger.debug(".cookie("+Config.CLIENT_COOKIE+", "+_storedCookie.getValue()+");");
+		if (_storedCookie != null) {
+			_logger.debug(".cookie(" + Config.CLIENT_COOKIE + ", " + _storedCookie.getValue() + ");");
 			builder.cookie(Config.CLIENT_COOKIE, _storedCookie.getValue());
 		}
 		return;

@@ -11,30 +11,24 @@ import java.util.*;
 /**
  * Utility class with a search method that identifies seats that are available
  * to reserve.
- *
  */
 public class TheatreUtility {
 
 	/**
 	 * Attempts to find a specified number of seats, within a given priceband,
 	 * that aren't currently booked.
-	 * 
-	 * @param numberOfSeats
-	 *            the number of seats required.
-	 * @param price
-	 *            the priceband to search.
-	 * @param bookedSeats
-	 *            the set of seats that is currently booked.
-	 * 
+	 *
+	 * @param numberOfSeats the number of seats required.
+	 * @param price         the priceband to search.
+	 * @param bookedSeats   the set of seats that is currently booked.
 	 * @return a set of seats that are available to book. When successful the
-	 *         set is non-empty and contains numberOfSeats seats that are within
-	 *         the specified priceband. When not successful (i.e. when there are
-	 *         not enough seats available in the required priceband, this method
-	 *         returns the empty set.
-	 * 
+	 * set is non-empty and contains numberOfSeats seats that are within
+	 * the specified priceband. When not successful (i.e. when there are
+	 * not enough seats available in the required priceband, this method
+	 * returns the empty set.
 	 */
 	public static Set<SeatDTO> findAvailableSeats(int numberOfSeats,
-			PriceBand price, Set<SeatDTO> bookedSeats) {
+												  PriceBand price, Set<SeatDTO> bookedSeats) {
 		List<SeatDTO> openSeats = getAllAvailableSeatsByPrice(price,
 				bookedSeats);
 
@@ -49,7 +43,7 @@ public class TheatreUtility {
 
 
 	protected static Set<SeatDTO> getSpecificAvailableSeats(int startIndex,
-			int numberOfSeats, List<SeatDTO> openSeats) {
+															int numberOfSeats, List<SeatDTO> openSeats) {
 		Set<SeatDTO> availableSeats = new HashSet<SeatDTO>();
 		while (numberOfSeats > 0) {
 			if (startIndex > openSeats.size() - 1) {
@@ -64,7 +58,7 @@ public class TheatreUtility {
 	}
 
 	protected static List<SeatDTO> getAllAvailableSeatsByPrice(PriceBand price,
-			Set<SeatDTO> bookedSeats) {
+															   Set<SeatDTO> bookedSeats) {
 		List<SeatDTO> openSeats = new ArrayList<SeatDTO>();
 		Set<SeatRow> rowsInPriceBand = TheatreLayout
 				.getRowsForPriceBand(price);

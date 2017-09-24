@@ -14,7 +14,7 @@ public class ReservationMapper {
 			ReservationRequestDTO request) {
 		Set<SeatDTO> dtoSeats = new HashSet<>();
 
-		for(Seat seat : reservation.getSeats()){
+		for (Seat seat : reservation.getSeats()) {
 			SeatDTO sDto = SeatMapper.toDto(seat);
 			dtoSeats.add(sDto);
 		}

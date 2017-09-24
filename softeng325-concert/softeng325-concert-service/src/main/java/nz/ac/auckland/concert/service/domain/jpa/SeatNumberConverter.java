@@ -8,7 +8,6 @@ import javax.persistence.Converter;
 /**
  * AttributeConverter class to convert SeatNumber objects to Integers, which
  * can be readily mapped to a relational schema using JPA.
- *
  */
 @Converter
 public class SeatNumberConverter implements

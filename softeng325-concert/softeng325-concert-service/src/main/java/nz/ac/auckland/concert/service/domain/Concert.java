@@ -31,7 +31,7 @@ public class Concert implements Comparable<Concert> {
 
 	@ElementCollection
 	@CollectionTable(name = "CONCERT_TARIFS", joinColumns = @JoinColumn(name = "TARIFF"))
-	@MapKeyColumn( name = "PRICEBAND")
+	@MapKeyColumn(name = "PRICEBAND")
 	@MapKeyClass(PriceBand.class)
 	@MapKeyEnumerated(EnumType.STRING)
 	@Column(name = "TICKET_PRICE")
@@ -127,8 +127,8 @@ public class Concert implements Comparable<Concert> {
 		buffer.append(", date: ");
 		buffer.append(_dates.toString());
 		buffer.append(", featuring: ");
-		for (Performer performer: _performers) {
-			buffer.append(performer.getName()+", ");
+		for (Performer performer : _performers) {
+			buffer.append(performer.getName() + ", ");
 		}
 
 		return buffer.toString();

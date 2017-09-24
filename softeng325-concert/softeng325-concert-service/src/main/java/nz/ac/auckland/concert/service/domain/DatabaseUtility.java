@@ -9,9 +9,8 @@ import java.util.Set;
 
 /**
  * Utility class that provides methods for working with a database. This class
- * interacts with the database using plain SQL, and doesn't use any ORM 
+ * interacts with the database using plain SQL, and doesn't use any ORM
  * functionality.
- * 
  */
 public class DatabaseUtility {
 
@@ -19,7 +18,7 @@ public class DatabaseUtility {
 	public static final String DATABASE_URL = "jdbc:h2:~/test;mv_store=false";
 	public static final String DATABASE_USERNAME = "sa";
 	public static final String DATABASE_PASSWORD = "sa";
-	
+
 	private static Logger _logger = LoggerFactory
 			.getLogger(DatabaseUtility.class);
 
@@ -28,13 +27,11 @@ public class DatabaseUtility {
 
 	/**
 	 * Creates a connection to the database.
-	 * 
-	 * @throws ClassNotFoundException if the named database driver class can't 
-	 *         be located.
-	 *         
-	 * @throws SQLException if there is an error with connecting to the 
-	 *         database.
-	 *         
+	 *
+	 * @throws ClassNotFoundException if the named database driver class can't
+	 *                                be located.
+	 * @throws SQLException           if there is an error with connecting to the
+	 *                                database.
 	 */
 	public static void openDatabase() throws ClassNotFoundException,
 			SQLException {
@@ -49,30 +46,25 @@ public class DatabaseUtility {
 
 	/**
 	 * Closes the database connection.
-	 * 
+	 *
 	 * @throws SQLException if an error is encountered closing the connection.
-	 * 
 	 */
 	public static void closeDatabase() throws SQLException {
-		if(_jdbcConnection != null) {
+		if (_jdbcConnection != null) {
 			_jdbcConnection.close();
 		}
 		_jdbcConnection = null;
 	}
 
 	/**
-	 * Deletes rows from existing tables and optionally drops tables from the 
-	 * database. 
-	 * 
-	 * @param dropTables
-	 *            set to true to drop existing tables, false to only clear
-	 *            content from the tables.
-	 * 
-	 * @throws IllegalStateException if the database connection hasn't been 
-	 *            opened.
-	 *            
-	 * @throws SQLException if there's an error clearing database.
-	 * 
+	 * Deletes rows from existing tables and optionally drops tables from the
+	 * database.
+	 *
+	 * @param dropTables set to true to drop existing tables, false to only clear
+	 *                   content from the tables.
+	 * @throws IllegalStateException if the database connection hasn't been
+	 *                               opened.
+	 * @throws SQLException          if there's an error clearing database.
 	 */
 	public static void clearDatabase(boolean dropTables) throws IllegalStateException, SQLException {
 		Statement s = _jdbcConnection.createStatement();
@@ -98,67 +90,60 @@ public class DatabaseUtility {
 		s.execute("SET REFERENTIAL_INTEGRITY TRUE");
 		s.close();
 	}
-	
+
 	/**
 	 * Executes a SQL statement.
-	 * 
+	 *
 	 * @param sqlStatement the SQL statement to execute.
-	 * 
-	 * @throws IllegalStateException if the database connection hasn't been 
-	 *            opened.
-	 *            
-	 * @throws SQLException if there's an error executing the SQL statement.
+	 * @throws IllegalStateException if the database connection hasn't been
+	 *                               opened.
+	 * @throws SQLException          if there's an error executing the SQL statement.
 	 */
 	public static void executeStatement(String sqlStatement) throws IllegalStateException, SQLException {
-		if(_jdbcConnection == null) {
+		if (_jdbcConnection == null) {
 			throw new IllegalStateException();
 		}
-		
+
 		Statement stmt = _jdbcConnection.createStatement();
 		stmt.execute(sqlStatement);
 	}
-	
+
 	/**
-	 * Executes a SQL query and returns a ResultSet storing the result of the 
+	 * Executes a SQL query and returns a ResultSet storing the result of the
 	 * query.
-	 * 
+	 *
 	 * @param sqlQuery the SQL query to execute.
-	 * 
-	 * @throws IllegalStateException if the database connection hasn't been 
-	 *            opened.
-	 *            
-	 * @throws SQLException if there's an error executing the SQL query.
+	 * @throws IllegalStateException if the database connection hasn't been
+	 *                               opened.
+	 * @throws SQLException          if there's an error executing the SQL query.
 	 */
 	public static ResultSet executeQuery(String sqlQuery) throws IllegalStateException, SQLException {
-		if(_jdbcConnection == null) {
+		if (_jdbcConnection == null) {
 			throw new IllegalStateException();
 		}
-		
+
 		Statement stmt = _jdbcConnection.createStatement();
-        ResultSet resultSet = stmt.executeQuery(sqlQuery);
-        
-        return resultSet;
+		ResultSet resultSet = stmt.executeQuery(sqlQuery);
+
+		return resultSet;
 	}
 
 	/**
-	 * Logs the contents of the database using the configured logger. This 
-	 * method outputs the contents of tables that contain at least one row 
+	 * Logs the contents of the database using the configured logger. This
+	 * method outputs the contents of tables that contain at least one row
 	 * (there is no output for empty tables).
-	 * 
+	 *
 	 * @param tableNames an optional Set of table names. If this parameter is
-	 * supplied, only the non-empty tables named in the Set are output.
-	 * 
-	 * @throws IllegalStateException if the database connection hasn't been 
-	 *            opened.
-	 *         
-	 * @throws SQLException if there's an error reading from the database.
-	 * 
+	 *                   supplied, only the non-empty tables named in the Set are output.
+	 * @throws IllegalStateException if the database connection hasn't been
+	 *                               opened.
+	 * @throws SQLException          if there's an error reading from the database.
 	 */
 	public static void dumpDatabase(Set<String> tableNames) throws IllegalStateException, SQLException {
-		if(_jdbcConnection == null) {
+		if (_jdbcConnection == null) {
 			throw new IllegalStateException();
 		}
-		
+
 		// Run a query to obtain table names.
 		Statement s = _jdbcConnection.createStatement();
 		ResultSet rs = s.executeQuery("select table_name "
@@ -168,8 +153,8 @@ public class DatabaseUtility {
 		// Iterate over each table.
 		while (rs.next()) {
 			String tableName = rs.getString(1);
-			
-			if(tableNames != null && (!tableNames.contains(tableName))) {
+
+			if (tableNames != null && (!tableNames.contains(tableName))) {
 				// Skip this table.
 				continue;
 			}
@@ -184,7 +169,7 @@ public class DatabaseUtility {
 					ResultSet.CONCUR_UPDATABLE);
 			ResultSet tableRows = query.executeQuery("select * from "
 					+ tableName);
-			
+
 
 			// A ResultSetMetaData object stores table metadata.
 			ResultSetMetaData metadata = tableRows.getMetaData();
@@ -216,7 +201,7 @@ public class DatabaseUtility {
 					}
 				}
 			}
-			if(rowCount == 0) {
+			if (rowCount == 0) {
 				// Table is empty - don't process it further.
 				continue;
 			}

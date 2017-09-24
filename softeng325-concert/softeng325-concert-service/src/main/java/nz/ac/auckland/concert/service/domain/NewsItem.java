@@ -20,7 +20,8 @@ public class NewsItem {
 	@Column(nullable = false, name = "CONTENT")
 	private String _content;
 
-	public NewsItem() {}
+	public NewsItem() {
+	}
 
 	public NewsItem(Long id, LocalDateTime timestamp, String content) {
 		_id = id;

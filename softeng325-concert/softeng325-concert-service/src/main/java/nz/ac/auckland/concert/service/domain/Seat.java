@@ -11,10 +11,10 @@ import javax.persistence.*;
 @Embeddable
 public class Seat {
 	@Enumerated(EnumType.STRING)
-	@Column(  name = "ROW", nullable= false)
+	@Column(name = "ROW", nullable = false)
 	private SeatRow _row;
-	
-	@Column( name = "NUMBER", nullable= false)
+
+	@Column(name = "NUMBER", nullable = false)
 	@Convert(converter = SeatNumberConverter.class)
 	private SeatNumber _number;
 
@@ -23,30 +23,31 @@ public class Seat {
 		_number = number;
 	}
 
-	public Seat() {}
+	public Seat() {
+	}
 
 	public SeatRow getRow() {
 		return _row;
 	}
-	
+
 	public SeatNumber getNumber() {
 		return _number;
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (!(obj instanceof Seat))
-            return false;
-        if (obj == this)
-            return true;
+			return false;
+		if (obj == this)
+			return true;
 
-        Seat rhs = (Seat) obj;
-        return new EqualsBuilder()
+		Seat rhs = (Seat) obj;
+		return new EqualsBuilder()
 				.append(_row, rhs._row)
 				.append(_number, rhs._number)
 				.isEquals();
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return new HashCodeBuilder(17, 31)
@@ -54,7 +55,7 @@ public class Seat {
 				.append(_number)
 				.hashCode();
 	}
-	
+
 	@Override
 	public String toString() {
 		String result = _row + _number.toString();
