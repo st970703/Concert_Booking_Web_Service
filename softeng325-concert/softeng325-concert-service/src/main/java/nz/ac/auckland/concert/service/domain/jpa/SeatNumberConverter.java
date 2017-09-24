@@ -1,9 +1,9 @@
 package nz.ac.auckland.concert.service.domain.jpa;
 
+import nz.ac.auckland.concert.common.types.SeatNumber;
+
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
-
-import nz.ac.auckland.concert.common.types.SeatNumber;
 
 /**
  * AttributeConverter class to convert SeatNumber objects to Integers, which

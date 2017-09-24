@@ -1,11 +1,11 @@
 package nz.ac.auckland.concert.common.util;
 
+import nz.ac.auckland.concert.common.types.PriceBand;
+import nz.ac.auckland.concert.common.types.SeatRow;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-
-import nz.ac.auckland.concert.common.types.PriceBand;
-import nz.ac.auckland.concert.common.types.SeatRow;
 
 /**
  * Utility class that models the layout of seats at the concert venue.

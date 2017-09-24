@@ -1,19 +1,13 @@
 package nz.ac.auckland.concert.common.dto;
 
+import nz.ac.auckland.concert.common.types.Genre;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
+import javax.xml.bind.annotation.*;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-
-import nz.ac.auckland.concert.common.types.Genre;
-
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  * DTO class to represent performers. 

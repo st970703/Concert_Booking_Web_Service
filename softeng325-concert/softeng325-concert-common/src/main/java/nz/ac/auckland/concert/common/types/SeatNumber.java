@@ -1,9 +1,9 @@
 package nz.ac.auckland.concert.common.types;
 
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  * Class to represent seat numbers.

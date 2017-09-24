@@ -1,8 +1,7 @@
 package nz.ac.auckland.concert.common.jaxb;
 
-import java.time.LocalDate;
-
 import javax.xml.bind.annotation.adapters.XmlAdapter;
+import java.time.LocalDate;
 
 /**
  * JAXB XML adapter to convert between LocalDate instances and Strings.
