@@ -13,12 +13,10 @@ import com.amazonaws.services.s3.transfer.TransferManagerBuilder;
 import nz.ac.auckland.concert.common.Config;
 import nz.ac.auckland.concert.common.dto.*;
 import nz.ac.auckland.concert.common.message.Messages;
-import nz.ac.auckland.concert.service.services.PersistenceManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
-import javax.persistence.EntityManager;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -39,24 +37,20 @@ public class DefaultService implements ConcertService {
 
 	private static String WEB_SERVICE_URI = "http://localhost:10000/services";
 
-	private static PersistenceManager pManager = PersistenceManager.instance();
-	private static EntityManager eManager = pManager.createEntityManager();
-
 	private NewCookie _storedCookie;
 
 	// AWS S3 access credentials for concert images.
-	private static final String AWS_ACCESS_KEY_ID = "";
-	private static final String AWS_SECRET_ACCESS_KEY = "";
+	private static final String AWS_ACCESS_KEY_ID = "AKIAIDYKYWWUZ65WGNJA";
+	private static final String AWS_SECRET_ACCESS_KEY = "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";
 
 	// Name of the S3 bucket that stores images.
 	private static final String AWS_BUCKET = "concert.aucklanduni.ac.nz";
 
-	private static final String FILE_SEPARATOR = System
-			.getProperty("file.separator");
-	private static final String USER_DIRECTORY = System
-			.getProperty("user.home");
-	private static final String DOWNLOAD_DIRECTORY = USER_DIRECTORY
-			+ FILE_SEPARATOR + "images";
+	private static final String FILE_SEPARATOR =
+			System.getProperty("file.separator");
+	private static final String USER_DIRECTORY = System.getProperty("user.home");
+	private static final String DOWNLOAD_DIRECTORY =
+			USER_DIRECTORY + FILE_SEPARATOR + "images";
 
 	@Override
 	public Set<ConcertDTO> getConcerts() throws ServiceException {
@@ -185,7 +179,6 @@ public class DefaultService implements ConcertService {
 		switch (responseCode) {
 			case 401:
 				errorMessage = response.readEntity (String.class);
-
 				throw new ServiceException(errorMessage);
 			case 200:
 				uDto = response.readEntity(UserDTO.class);
@@ -302,6 +295,7 @@ public class DefaultService implements ConcertService {
 		String errorMessage;
 		int responseCode = response.getStatus();
 		_logger.debug("confirmReservation() responseCode = "+responseCode);
+
 		switch (responseCode){
 			case 400:
 				errorMessage = response.readEntity (String.class);
@@ -401,7 +395,6 @@ public class DefaultService implements ConcertService {
 	}
 
 	@Override
-	//	@DELETE
 	public void cancelSubscription() {
 		throw new UnsupportedOperationException();
 	}
@@ -418,6 +411,7 @@ public class DefaultService implements ConcertService {
 			NewCookie getCookie = cookies.get(Config.CLIENT_COOKIE);
 			_storedCookie = getCookie;
 		}
+		return;
 	}
 
 	/**
