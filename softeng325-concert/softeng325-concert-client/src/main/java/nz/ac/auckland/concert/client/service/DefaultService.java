@@ -13,16 +13,12 @@ import com.amazonaws.services.s3.transfer.TransferManagerBuilder;
 import nz.ac.auckland.concert.common.Config;
 import nz.ac.auckland.concert.common.dto.*;
 import nz.ac.auckland.concert.common.message.Messages;
-import nz.ac.auckland.concert.service.domain.Concert;
-import nz.ac.auckland.concert.service.domain.CreditCard;
-import nz.ac.auckland.concert.service.domain.User;
 import nz.ac.auckland.concert.service.services.PersistenceManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -36,8 +32,6 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import static nz.ac.auckland.concert.common.Config.CLIENT_COOKIE;
 
 public class DefaultService implements ConcertService {
 
@@ -269,10 +263,11 @@ public class DefaultService implements ConcertService {
 		Response response = builder.post(
 				Entity.xml(reservationRequest));
 
-		ReservationDTO dtoReservation = new ReservationDTO();
+		ReservationDTO rDto = new ReservationDTO();
 
 		String errorMessage;
 		int responseCode = response.getStatus();
+		_logger.debug("reserveSeats() responseCode ="+responseCode );
 		switch (responseCode){
 			case 400:
 				errorMessage = response.readEntity (String.class);
@@ -281,7 +276,7 @@ public class DefaultService implements ConcertService {
 				errorMessage = response.readEntity (String.class);
 				throw new ServiceException(errorMessage);
 			case 200:
-				dtoReservation = response.readEntity(ReservationDTO.class);
+				rDto = response.readEntity(ReservationDTO.class);
 				break;
 			default:
 				throw new ServiceException(Messages.SERVICE_COMMUNICATION_ERROR);
@@ -290,7 +285,7 @@ public class DefaultService implements ConcertService {
 		response.close();
 		client.close();
 
-		return dtoReservation;
+		return rDto;
 	}
 
 	@Override
@@ -298,7 +293,7 @@ public class DefaultService implements ConcertService {
 		Client client = ClientBuilder.newClient();
 
 		Invocation.Builder builder = client.target(
-				WEB_SERVICE_URI + "reservation/confirm/").request();
+				WEB_SERVICE_URI + "resources/confirm/").request();
 		addCookieToBuilder(builder);
 
 		Response response = builder.post(
@@ -368,8 +363,9 @@ public class DefaultService implements ConcertService {
 	public Set<BookingDTO> getBookings() throws ServiceException {
 		Client client = ClientBuilder.newClient();
 
-		Invocation.Builder builder = client.target(
-				WEB_SERVICE_URI + "/bookings").request();
+		Invocation.Builder builder = client
+				.target(WEB_SERVICE_URI + "/resources/bookings")
+				.request();
 		addCookieToBuilder(builder);
 		Response response = builder.get();
 
@@ -427,6 +423,7 @@ public class DefaultService implements ConcertService {
 	 */
 	private void addCookieToBuilder(Invocation.Builder builder) {
 		if(_storedCookie != null) {
+			_logger.debug(".cookie("+Config.CLIENT_COOKIE+", "+_storedCookie.getValue()+");");
 			builder.cookie(Config.CLIENT_COOKIE, _storedCookie.getValue());
 		}
 		return;

@@ -6,7 +6,9 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import nz.ac.auckland.concert.common.jaxb.LocalDateTimeAdapter;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -36,6 +38,7 @@ public class CreditCardDTO {
 	private String _number;
 	
 	@XmlElement
+	@XmlJavaTypeAdapter(value = LocalDateTimeAdapter.class)
 	private LocalDate _expiryDate;
 	
 	public CreditCardDTO() {}

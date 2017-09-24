@@ -24,11 +24,14 @@ public class User {
 	@Column(name = "TOKEN")
 	private String _tokenKey;
 
+	public Set<Reservation> getReservations() {
+		return _reservations;
+	}
+
 	@OneToMany
 	@JoinColumn(name = "RESERVATION")
 	private Set<Reservation> _reservations;
 
-	@Column( name = "CREDITCARD")
 	private CreditCard _cCard;
 
 	public User() {}
@@ -84,6 +87,18 @@ public class User {
 		if (tokenKey != null) {
 			_tokenKey = tokenKey;
 		}
+	}
+
+	public void setReservation(Set<Reservation> reservations) {
+		_reservations = reservations;
+	}
+
+	public void addReservation(Reservation reservation) {
+		_reservations.add(reservation);
+	}
+
+	public void removeReservation(Reservation reservation) {
+		_reservations.remove(reservation);
 	}
 
 	@Override

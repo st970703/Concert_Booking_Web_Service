@@ -1,12 +1,11 @@
 package nz.ac.auckland.concert.service.domain;
 
-import nz.ac.auckland.concert.service.domain.jpa.LocalDateTimeConverter;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import javax.persistence.Column;
-import javax.persistence.Convert;
 import javax.persistence.Embeddable;
+import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import java.time.LocalDate;
 
@@ -14,7 +13,7 @@ import java.time.LocalDate;
 public class CreditCard {
 	public enum Type {Visa, Master};
 
-	@Enumerated
+	@Enumerated(EnumType.STRING)
 	@Column(name = "TYPE")
 	private CreditCard.Type _type;
 

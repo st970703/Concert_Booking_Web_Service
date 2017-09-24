@@ -1,41 +1,25 @@
 package nz.ac.auckland.concert.client.service;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Set;
-
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-
-import nz.ac.auckland.concert.common.dto.BookingDTO;
-import nz.ac.auckland.concert.common.dto.ConcertDTO;
-import nz.ac.auckland.concert.common.dto.CreditCardDTO;
-import nz.ac.auckland.concert.common.dto.PerformerDTO;
-import nz.ac.auckland.concert.common.dto.ReservationDTO;
-import nz.ac.auckland.concert.common.dto.ReservationRequestDTO;
-import nz.ac.auckland.concert.common.dto.SeatDTO;
-import nz.ac.auckland.concert.common.dto.UserDTO;
+import nz.ac.auckland.concert.common.dto.*;
 import nz.ac.auckland.concert.common.message.Messages;
 import nz.ac.auckland.concert.common.types.PriceBand;
-import nz.ac.auckland.concert.common.types.SeatRow;
 import nz.ac.auckland.concert.common.util.TheatreLayout;
 import nz.ac.auckland.concert.service.services.ConcertApplication;
-
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Set;
+
+import static org.junit.Assert.*;
 
 /**
  * Tests for a ConcertService implementation.
@@ -120,6 +104,7 @@ public class ConcertServiceTest {
 			UserDTO userDTO = new UserDTO("Bulldog", "123", "Churchill", "Winston");
 			_service.createUser(userDTO);
 		} catch(ServiceException e) {
+			_logger.debug("testCreateUser()"+e.getMessage());
 			fail();
 		}
 	}
@@ -233,6 +218,7 @@ public class ConcertServiceTest {
 			}
 
 		} catch(ServiceException e) {
+			_logger.debug("testMakeReservation()"+e.getMessage());
 			fail();
 		}
 	}
@@ -252,7 +238,6 @@ public class ConcertServiceTest {
 			assertEquals(Messages.CONCERT_NOT_SCHEDULED_ON_RESERVATION_DATE, e.getMessage());
 		}
 	}
-
 
 	@Test
 	public void testMakeReservationWithUnauthenticatedUser() {

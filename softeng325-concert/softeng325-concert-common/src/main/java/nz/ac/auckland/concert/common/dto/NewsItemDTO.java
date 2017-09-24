@@ -5,6 +5,11 @@ import java.time.LocalDateTime;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  * DTO class to represent news items. A news item typically reports that a
  * concert with particular performers is coming to town, that ticket sales for
@@ -16,10 +21,15 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
  * _content   the news item context text.   
  *
  */
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
 public class NewsItemDTO {
 
+	@XmlElement
 	private Long _id;
+	@XmlElement
 	private LocalDateTime _timestamp;
+	@XmlElement
 	private String _content;
 	
 	public NewsItemDTO() {}

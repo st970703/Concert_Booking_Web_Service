@@ -27,12 +27,10 @@ public class SeatMapper {
 		EntityManager eManager = pManager.createEntityManager();
 		eManager.getTransaction().begin();
 		TypedQuery<Concert> concertQuery = eManager.createQuery("select c from Concert c where c.id = :id", Concert.class);
-		Concert concert = concertQuery.getSingleResult( );
 
 		nz.ac.auckland.concert.service.domain.Seat seat = new Seat(
 				sDto.getRow(),
-				sDto.getNumber(),
-				concert
+				sDto.getNumber()
 		);
 
 		return seat;

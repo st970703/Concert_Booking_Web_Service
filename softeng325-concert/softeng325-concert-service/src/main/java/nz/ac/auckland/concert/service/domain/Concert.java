@@ -6,9 +6,6 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import javax.persistence.*;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -29,7 +26,7 @@ public class Concert implements Comparable<Concert> {
 	@CollectionTable(
 			name = "CONCERT_DATES",
 			joinColumns = @JoinColumn(name = "CONCERT")
-			)
+	)
 	private Set<LocalDateTime> _dates;
 
 	@ElementCollection
@@ -45,7 +42,7 @@ public class Concert implements Comparable<Concert> {
 			name = "CONCERT_PERFORMER",
 			joinColumns = @JoinColumn(name = "CONCERT_ID"),
 			inverseJoinColumns = @JoinColumn(name = "PERFORMER_ID")
-			)
+	)
 	private Set<Performer> _performers;
 
 	public Concert() {
@@ -56,7 +53,7 @@ public class Concert implements Comparable<Concert> {
 	}
 
 	public Concert(Long id, String title, Set<LocalDateTime> dates,
-			Map<PriceBand, BigDecimal> ticketPrices, Set<Performer> performers) {
+				   Map<PriceBand, BigDecimal> ticketPrices, Set<Performer> performers) {
 		_cId = id;
 		_title = title;
 		_dates = new HashSet<LocalDateTime>(dates);

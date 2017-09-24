@@ -1,13 +1,17 @@
 package nz.ac.auckland.concert.service.services;
 
-import javax.persistence.EntityManager;
-import javax.ws.rs.ApplicationPath;
-import javax.ws.rs.core.Application;
-
+import nz.ac.auckland.concert.service.domain.Booking;
+import nz.ac.auckland.concert.service.domain.Reservation;
+import nz.ac.auckland.concert.service.domain.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
+import javax.ws.rs.ApplicationPath;
+import javax.ws.rs.core.Application;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -40,13 +44,30 @@ public class ConcertApplication extends Application {
 			em = PersistenceManager.instance().createEntityManager();
 			em.getTransaction().begin();
 
-			// Delete all existing entities of some type, e. g. MyEntity.
-			em.createQuery("delete from NewsItem").executeUpdate();
-			em.createQuery("delete from User").executeUpdate();
-			em.createQuery("delete from Reservation").executeUpdate();
-			em.createQuery("delete from Seat").executeUpdate();
+			TypedQuery<Booking> bookingQuery = em.createQuery("select b from " + Booking.class.getName() +  " b", Booking.class);
+			List<Booking> bookings = bookingQuery.getResultList();
 
-			em.getTransaction ().commit();
+			for(Booking booking : bookings){
+				em.remove(booking);
+			}
+
+			TypedQuery<User> userQuery = em.createQuery("select u from " + User.class.getName() +  " u", User.class);
+			List<User> users = userQuery.getResultList();
+
+			for(User user : users){
+				em.remove(user);
+			}
+
+			TypedQuery<Reservation> reservationQuery = em.createQuery("select r from " + Reservation.class.getName() +  " r", Reservation.class);
+			List<Reservation> reservations = reservationQuery.getResultList();
+
+			for(Reservation reservation : reservations){
+				em.remove(reservation);
+			}
+
+			em.flush();
+			em.clear();
+			em.getTransaction (). commit();
 		} catch(Exception e) {
 			// Process and log the exception .
 			_logger.debug(e.getMessage());
