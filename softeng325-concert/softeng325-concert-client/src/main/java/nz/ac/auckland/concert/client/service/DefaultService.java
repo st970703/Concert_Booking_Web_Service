@@ -257,7 +257,7 @@ public class DefaultService implements ConcertService {
 		Client client = ClientBuilder.newClient();
 
 		Invocation.Builder builder = client.target(
-				WEB_SERVICE_URI + "resources/reservation").request();
+				WEB_SERVICE_URI + "/resources/reservation").request();
 		addCookieToBuilder(builder);
 
 		Response response = builder.post(

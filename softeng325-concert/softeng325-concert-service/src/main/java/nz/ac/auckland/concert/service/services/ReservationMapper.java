@@ -9,16 +9,14 @@ import java.util.Set;
 
 public class ReservationMapper {
 
-	private static ReservationRequestDTO rrDto;
-	private static Set<SeatDTO> sDtos;
-	private static Set<Seat> seats;
-
-	static nz.ac.auckland.concert.common.dto.ReservationDTO toDto(nz.ac.auckland.concert.service.domain.Reservation reservation, ReservationRequestDTO request) {
-
+	static nz.ac.auckland.concert.common.dto.ReservationDTO toDto(
+			nz.ac.auckland.concert.service.domain.Reservation reservation,
+			ReservationRequestDTO request) {
 		Set<SeatDTO> dtoSeats = new HashSet<>();
 
 		for(Seat seat : reservation.getSeats()){
-			dtoSeats.add(SeatMapper.toDto(seat));
+			SeatDTO sDto = SeatMapper.toDto(seat);
+			dtoSeats.add(sDto);
 		}
 
 		nz.ac.auckland.concert.common.dto.ReservationDTO dtoReservation =
@@ -28,7 +26,6 @@ public class ReservationMapper {
 						dtoSeats
 				);
 		return dtoReservation;
-
 	}
 
 //	static nz.ac.auckland.concert.service.domain.Reservation toDomainModel( nz.ac.auckland.concert.common.dto.ReservationDTO rDto) {

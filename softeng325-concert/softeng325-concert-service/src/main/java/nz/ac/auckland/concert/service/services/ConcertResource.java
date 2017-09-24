@@ -265,7 +265,8 @@ public class ConcertResource {
 	@Produces({ APPLICATION_XML })
 	public Response makeReservation(ReservationRequestDTO dtoReservationRequest,
 									@CookieParam("clientId") Cookie clientId) {
-		NewCookie cookie = authenticateCookie(clientId);
+		_logger.debug("makeReservation() "+dtoReservationRequest.toString()+ ", "+ clientId.toString());
+		authenticateCookie(clientId);
 
 		EntityManager em = null;
 		ResponseBuilder response;
@@ -292,9 +293,9 @@ public class ConcertResource {
 
 			TypedQuery<Booking> bookingQuery = em.createQuery("select b from "
 							+ Booking.class.getName()
-							+ " b where b.CONCERT = (:cId)"
-							+ " and b.DATE = (:date)"
-							+" and b.PRICEBAND = (:pBand)",
+							+ " b where _cId = (:cId)"
+							+ " and _dateTime = (:date)"
+							+" and _priceBand = (:pBand)",
 					Booking.class);
 
 			bookingQuery.setParameter("cId",
@@ -302,7 +303,7 @@ public class ConcertResource {
 			bookingQuery.setParameter("date",
 					dtoReservationRequest.getDate());
 			bookingQuery.setParameter("pBand",
-					dtoReservationRequest.getSeatType().toString());
+					dtoReservationRequest.getSeatType());
 			List<Booking> bookings = bookingQuery.getResultList();
 
 			// get user associated with cookie
@@ -310,7 +311,7 @@ public class ConcertResource {
 			EntityManager eManager = pManager.createEntityManager();
 			TypedQuery<User> userQuery = eManager
 					.createQuery("select u from User u where u._tokenKey = :token", User.class)
-					.setParameter("token", cookie.getValue());
+					.setParameter("token", clientId.getValue());
 			User findUser = userQuery.getSingleResult();
 
 			em.getTransaction().commit();
@@ -415,7 +416,7 @@ public class ConcertResource {
 			nz.ac.auckland.concert.common.dto.CreditCardDTO creditCardDTO,
 			@CookieParam("clientId") Cookie clientId) {
 
-		Cookie storedCookie = authenticateCookie(clientId);
+		authenticateCookie(clientId);
 
 		EntityManager em = null;
 		ResponseBuilder response;
@@ -450,7 +451,7 @@ public class ConcertResource {
 	@Path("bookings")
 	@Produces(javax.ws.rs.core.MediaType.APPLICATION_XML)
 	public Response getBookings(@CookieParam("clientId") Cookie clientId) {
-		Cookie cookie = authenticateCookie(clientId);
+		authenticateCookie(clientId);
 
 		EntityManager em = null;
 		ResponseBuilder response;
@@ -462,7 +463,7 @@ public class ConcertResource {
 			TypedQuery<User> userQuery = em
 					.createQuery(
 							"select u from User u where u._tokenKey = :token", User.class)
-					.setParameter("token", cookie.getValue());
+					.setParameter("token", clientId.getValue());
 			User findUser = userQuery.getSingleResult();
 			Set<Reservation> reservations = findUser.getReservations();
 
@@ -520,8 +521,9 @@ public class ConcertResource {
 
 	/**
 	 * helper
+	 * throws Exceptions
 	 */
-	private NewCookie authenticateCookie(Cookie cookie){
+	private void authenticateCookie(Cookie cookie) {
 		if(cookie == null){
 			_logger.debug("Cookie is null");
 
@@ -553,7 +555,7 @@ public class ConcertResource {
 					.build());
 		}
 
-		return makeCookie(findUser.getId());
+		return;
 	}
 
 	/**
