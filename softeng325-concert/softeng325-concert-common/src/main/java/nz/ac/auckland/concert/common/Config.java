@@ -2,7 +2,6 @@ package nz.ac.auckland.concert.common;
 
 /**
  * Class with shared configuration data for the client and Web service.
- *
  */
 public class Config {
 	/**

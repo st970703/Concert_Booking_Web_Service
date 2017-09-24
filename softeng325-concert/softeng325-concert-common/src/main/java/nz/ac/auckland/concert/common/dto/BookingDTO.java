@@ -13,18 +13,17 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * DTO class to represent bookings (confirmed reservations). 
- * 
+ * DTO class to represent bookings (confirmed reservations).
+ * <p>
  * A BookingDTO describes a booking in terms of:
  * _concertId      the unique identifier for a concert.
  * _concertTitle   the concert's title.
- * _dateTime       the concert's scheduled date and time for which the booking 
- *                 applies.
- * _seats          the seats that have been booked (represented as a  Set of 
- *                 SeatDTO objects).
- * _priceBand      the price band of the booked seats (all seats are within the 
- *                 same price band).
- *
+ * _dateTime       the concert's scheduled date and time for which the booking
+ * applies.
+ * _seats          the seats that have been booked (represented as a  Set of
+ * SeatDTO objects).
+ * _priceBand      the price band of the booked seats (all seats are within the
+ * same price band).
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -39,7 +38,7 @@ public class BookingDTO {
 	}
 
 	public BookingDTO(Long concertId, String concertTitle,
-			LocalDateTime dateTime, Set<SeatDTO> seats, PriceBand priceBand) {
+					  LocalDateTime dateTime, Set<SeatDTO> seats, PriceBand priceBand) {
 		_concertId = concertId;
 		_concertTitle = concertTitle;
 		_dateTime = dateTime;

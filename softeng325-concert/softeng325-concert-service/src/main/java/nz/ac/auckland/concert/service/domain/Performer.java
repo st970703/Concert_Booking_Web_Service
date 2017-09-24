@@ -19,7 +19,7 @@ public class Performer {
 	@Column(nullable = false, name = "NAME")
 	private String _name;
 
-	@Column(nullable = false, name = "IMAGE_NAME" )
+	@Column(nullable = false, name = "IMAGE_NAME")
 	private String _imageName;
 
 	@Enumerated(EnumType.STRING)
@@ -28,7 +28,8 @@ public class Performer {
 	@ManyToMany(mappedBy = "_performers")
 	private Set<Concert> _concerts;
 
-	public Performer() {}
+	public Performer() {
+	}
 
 	public Performer(Long id, String name, String imageName, Genre genre, Set<Concert> concerts) {
 		_pId = id;

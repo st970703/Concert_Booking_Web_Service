@@ -16,9 +16,6 @@ import java.util.Set;
 
 /**
  * JAX-RS Application subclass for the Concert Web service.
- *
- *
- *
  */
 @ApplicationPath("/services")
 public class ConcertApplication extends Application {
@@ -35,7 +32,7 @@ public class ConcertApplication extends Application {
 			.getLogger(ConcertResource.class);
 
 	// Constructor called by JAX−RS.
-	public ConcertApplication () {
+	public ConcertApplication() {
 		_classes.add(ConcertResource.class);
 
 		EntityManager em = null;
@@ -45,36 +42,36 @@ public class ConcertApplication extends Application {
 			em.getTransaction().begin();
 
 			// Clear DB content
-			TypedQuery<Booking> bookingQuery = em.createQuery("select b from " + Booking.class.getName() +  " b", Booking.class);
+			TypedQuery<Booking> bookingQuery = em.createQuery("select b from " + Booking.class.getName() + " b", Booking.class);
 			List<Booking> bookings = bookingQuery.getResultList();
 
-			for(Booking booking : bookings){
+			for (Booking booking : bookings) {
 				em.remove(booking);
 			}
 
-			TypedQuery<User> userQuery = em.createQuery("select u from " + User.class.getName() +  " u", User.class);
+			TypedQuery<User> userQuery = em.createQuery("select u from " + User.class.getName() + " u", User.class);
 			List<User> users = userQuery.getResultList();
 
-			for(User user : users){
+			for (User user : users) {
 				em.remove(user);
 			}
 
-			TypedQuery<Reservation> reservationQuery = em.createQuery("select r from " + Reservation.class.getName() +  " r", Reservation.class);
+			TypedQuery<Reservation> reservationQuery = em.createQuery("select r from " + Reservation.class.getName() + " r", Reservation.class);
 			List<Reservation> reservations = reservationQuery.getResultList();
 
-			for(Reservation reservation : reservations){
+			for (Reservation reservation : reservations) {
 				em.remove(reservation);
 			}
 
 			em.flush();
 			em.clear();
-			em.getTransaction (). commit();
-		} catch(Exception e) {
+			em.getTransaction().commit();
+		} catch (Exception e) {
 			// Process and log the exception.
 			_logger.debug(e.getMessage());
 		} finally {
 			if (em != null && em.isOpen()) {
-				em.close ();
+				em.close();
 			}
 		}
 	}
@@ -89,8 +86,7 @@ public class ConcertApplication extends Application {
 	}
 
 	@Override
-	public Set<Object> getSingletons()
-	{
+	public Set<Object> getSingletons() {
 		_singletons.add(PersistenceManager.instance());
 
 		// Return a Set containing an instance of ParoleeResource that will be

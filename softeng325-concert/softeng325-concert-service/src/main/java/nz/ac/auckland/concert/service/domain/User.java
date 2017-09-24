@@ -34,7 +34,8 @@ public class User {
 
 	private CreditCard _cCard;
 
-	public User() {}
+	public User() {
+	}
 
 	public User(String username, String password, String lastname, String firstname) {
 		this(username, password, lastname, firstname, null, null);
@@ -77,7 +78,9 @@ public class User {
 		return _lastname;
 	}
 
-	public String getId() {return _username;}
+	public String getId() {
+		return _username;
+	}
 
 	public String getToken() {
 		return _tokenKey;

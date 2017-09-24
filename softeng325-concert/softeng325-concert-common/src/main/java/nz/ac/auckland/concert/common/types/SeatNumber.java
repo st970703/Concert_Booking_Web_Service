@@ -7,21 +7,21 @@ import javax.xml.bind.annotation.XmlAccessorType;
 
 /**
  * Class to represent seat numbers.
- * 
- * SeatNumber is a Number subtype that constrains values in the range 1..26. 
- *
+ * <p>
+ * SeatNumber is a Number subtype that constrains values in the range 1..26.
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 public class SeatNumber extends Number {
 	private static final int MIN = 1;
 	private static final int MAX = 26;
-	
+
 	private int _value;
-	
-	public SeatNumber() {}
-	
+
+	public SeatNumber() {
+	}
+
 	public SeatNumber(int value) throws IllegalArgumentException {
-		if(value < MIN || value > MAX) {
+		if (value < MIN || value > MAX) {
 			throw new IllegalArgumentException();
 		}
 		_value = value;
@@ -46,28 +46,28 @@ public class SeatNumber extends Number {
 	public double doubleValue() {
 		return _value;
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (!(obj instanceof SeatNumber))
-            return false;
-        if (obj == this)
-            return true;
+			return false;
+		if (obj == this)
+			return true;
 
-        SeatNumber rhs = (SeatNumber) obj;
-        return _value == rhs._value;
+		SeatNumber rhs = (SeatNumber) obj;
+		return _value == rhs._value;
 	}
-	
+
 	@Override
 	public int hashCode() {
-		return new HashCodeBuilder(17, 31). 
-	            append(_value).
-	            hashCode();
+		return new HashCodeBuilder(17, 31).
+				append(_value).
+				hashCode();
 	}
-	
+
 	@Override
 	public String toString() {
 		return Integer.toString(_value);
 	}
-	
+
 }

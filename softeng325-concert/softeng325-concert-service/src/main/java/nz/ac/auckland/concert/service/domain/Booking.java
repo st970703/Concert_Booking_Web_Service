@@ -16,25 +16,25 @@ public class Booking {
 
 	@Id
 	@GeneratedValue
-	@Column( name="BID", nullable= false)
+	@Column(name = "BID", nullable = false)
 	private Long _bId;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "_cId",nullable = false )
+	@JoinColumn(name = "_cId", nullable = false)
 	private Concert _concert;
 
-	@Column( name = "DATE", nullable= false )
+	@Column(name = "DATE", nullable = false)
 	@Convert(converter = LocalDateTimeConverter.class)
 	private LocalDateTime _dateTime;
 
 	@ElementCollection(fetch = FetchType.LAZY)
 	@CollectionTable(name = "BOOKED_SEATS",
-			joinColumns= @JoinColumn( name = "BID" ) )
-	@Column( name = "SEAT" )
+			joinColumns = @JoinColumn(name = "BID"))
+	@Column(name = "SEAT")
 	private Set<Seat> _seats;
 
 	@Enumerated(EnumType.STRING)
-	@Column( nullable = false, name = "PRICEBAND" )
+	@Column(nullable = false, name = "PRICEBAND")
 	private PriceBand _priceBand;
 
 	public Booking() {

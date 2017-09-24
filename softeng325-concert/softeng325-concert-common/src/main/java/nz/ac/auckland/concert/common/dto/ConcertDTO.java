@@ -10,18 +10,17 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 /**
- * DTO class to represent concerts. 
- * 
+ * DTO class to represent concerts.
+ * <p>
  * A ConcertDTO describes a concert in terms of:
  * _id           the unique identifier for a concert.
  * _title        the concert's title.
- * _dates        the concert's scheduled dates and times (represented as a 
- *               Set of LocalDateTime instances).
- * _tariff       concert pricing - the cost of a ticket for each price band 
- *               (A, B and C) is set individually for each concert. 
- * _performerIds identification of each performer playing at a concert 
- *               (represented as a set of performer identifiers).
- *
+ * _dates        the concert's scheduled dates and times (represented as a
+ * Set of LocalDateTime instances).
+ * _tariff       concert pricing - the cost of a ticket for each price band
+ * (A, B and C) is set individually for each concert.
+ * _performerIds identification of each performer playing at a concert
+ * (represented as a set of performer identifiers).
  */
 
 @XmlRootElement
@@ -29,18 +28,18 @@ import java.util.*;
 public class ConcertDTO {
 	@XmlElement
 	private Long _id;
-	
+
 	@XmlElement
 	private String _title;
 
 	@XmlElement
 	@XmlElementWrapper
 	private Set<LocalDateTime> _dates;
-	
+
 	@XmlElement
 	@XmlElementWrapper
 	private Map<PriceBand, BigDecimal> _tariff;
-	
+
 	@XmlElement
 	@XmlElementWrapper
 	private Set<Long> _performerIds;
@@ -49,7 +48,7 @@ public class ConcertDTO {
 	}
 
 	public ConcertDTO(Long id, String title, Set<LocalDateTime> dates,
-			Map<PriceBand, BigDecimal> ticketPrices, Set<Long> performerIds) {
+					  Map<PriceBand, BigDecimal> ticketPrices, Set<Long> performerIds) {
 		_id = id;
 		_title = title;
 		_dates = new HashSet<LocalDateTime>(dates);
@@ -76,30 +75,30 @@ public class ConcertDTO {
 	public Set<Long> getPerformerIds() {
 		return Collections.unmodifiableSet(_performerIds);
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (!(obj instanceof ConcertDTO))
-            return false;
-        if (obj == this)
-            return true;
+			return false;
+		if (obj == this)
+			return true;
 
-        ConcertDTO rhs = (ConcertDTO) obj;
-        return new EqualsBuilder().
-            append(_title, rhs._title).
-            append(_dates, rhs._dates).
-            append(_tariff, rhs._tariff).
-            append(_performerIds, rhs._performerIds).
-            isEquals();
+		ConcertDTO rhs = (ConcertDTO) obj;
+		return new EqualsBuilder().
+				append(_title, rhs._title).
+				append(_dates, rhs._dates).
+				append(_tariff, rhs._tariff).
+				append(_performerIds, rhs._performerIds).
+				isEquals();
 	}
-	
+
 	@Override
 	public int hashCode() {
-		return new HashCodeBuilder(17, 31). 
-	            append(_title).
-	            append(_dates).
-	            append(_tariff).
-	            append(_performerIds).
-	            hashCode();
+		return new HashCodeBuilder(17, 31).
+				append(_title).
+				append(_dates).
+				append(_tariff).
+				append(_performerIds).
+				hashCode();
 	}
 }

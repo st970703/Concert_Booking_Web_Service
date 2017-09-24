@@ -11,7 +11,9 @@ import java.time.LocalDate;
 
 @Embeddable
 public class CreditCard {
-	public enum Type {Visa, Master};
+	public enum Type {Visa, Master}
+
+	;
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "TYPE")
@@ -26,7 +28,8 @@ public class CreditCard {
 	@Column(name = "EXPIRY_DATE")
 	private LocalDate _expiryDate;
 
-	public CreditCard() {}
+	public CreditCard() {
+	}
 
 	public CreditCard(CreditCard.Type type, String name, String number, LocalDate expiryDate) {
 		_type = type;

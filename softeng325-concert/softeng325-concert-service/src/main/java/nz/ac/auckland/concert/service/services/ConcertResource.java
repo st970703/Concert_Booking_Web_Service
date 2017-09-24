@@ -29,7 +29,6 @@ import static nz.ac.auckland.concert.common.Config.CLIENT_COOKIE;
 
 /**
  * Class to implement a simple REST Web service for managing Concerts.
- *
  */
 @Produces({APPLICATION_XML})
 @Consumes({APPLICATION_XML})
@@ -41,7 +40,7 @@ public class ConcertResource {
 
 	@GET
 	@Path("/concerts")
-	@Produces({ APPLICATION_XML })
+	@Produces({APPLICATION_XML})
 	public Response retrieveConcerts() {
 		Response response;
 		PersistenceManager pManager = PersistenceManager.instance();
@@ -59,7 +58,7 @@ public class ConcertResource {
 
 			eManager.getTransaction().commit();
 
-			_logger.debug("concerts == "+concerts);
+			_logger.debug("concerts == " + concerts);
 			if (concerts == null) {
 				builder.status(Response.Status.NOT_FOUND);
 				throw new WebApplicationException(Response.Status.NOT_FOUND);
@@ -70,18 +69,19 @@ public class ConcertResource {
 
 			//convert
 			Set<ConcertDTO> cDtos = new HashSet<ConcertDTO>();
-			for(Concert c: concerts) {
+			for (Concert c : concerts) {
 				cDtos.add(ConcertMapper.toDto(c));
 			}
 
 			GenericEntity<Set<ConcertDTO>> entity = new GenericEntity<
-					Set<ConcertDTO>>(cDtos) {};
+					Set<ConcertDTO>>(cDtos) {
+			};
 			builder = Response.ok(entity);
 
 			response = (Response) builder.build();
 		} finally {
 			if (eManager != null && eManager.isOpen()) {
-				eManager.close ();
+				eManager.close();
 			}
 		}
 		return response;
@@ -89,7 +89,7 @@ public class ConcertResource {
 
 	@GET
 	@Path("/performers")
-	@Produces({ APPLICATION_XML })
+	@Produces({APPLICATION_XML})
 	public Response retrievePerformers() {
 		_logger.info("Retrieving all performers");
 		ResponseBuilder builder = new ResponseBuilderImpl();
@@ -116,19 +116,20 @@ public class ConcertResource {
 
 			//convert
 			Set<PerformerDTO> pDtos = new HashSet<PerformerDTO>();
-			for(Performer p: performers) {
+			for (Performer p : performers) {
 				pDtos.add(PerformerMapper.toDto(p));
 			}
 
 			GenericEntity<Set<PerformerDTO>> entity = new GenericEntity<
-					Set<PerformerDTO>>(pDtos) {};
+					Set<PerformerDTO>>(pDtos) {
+			};
 			builder = Response.ok(entity);
 
 			response = (Response) builder.build();
 
 		} finally {
 			if (eManager != null && eManager.isOpen()) {
-				eManager.close ();
+				eManager.close();
 			}
 		}
 		return response;
@@ -137,7 +138,7 @@ public class ConcertResource {
 	@POST
 	@Path("/users")
 	@Consumes({APPLICATION_XML})
-	@Produces({ APPLICATION_XML })
+	@Produces({APPLICATION_XML})
 	public Response createUser(UserDTO uDto) {
 		_logger.info("Creating User");
 		PersistenceManager pManager = PersistenceManager.instance();
@@ -152,9 +153,9 @@ public class ConcertResource {
 					|| uDto.getUsername() == null
 					) {
 				throw new BadRequestException(
-						Response.status (Status.BAD_REQUEST)
-								.entity (Messages.CREATE_USER_WITH_MISSING_FIELDS)
-								.build ());
+						Response.status(Status.BAD_REQUEST)
+								.entity(Messages.CREATE_USER_WITH_MISSING_FIELDS)
+								.build());
 			}
 
 			User newUser = UserMapper.toDomainModel(uDto);
@@ -166,9 +167,9 @@ public class ConcertResource {
 			//Condition: the supplied username is already taken.
 			if (findUser != null) {
 				throw new BadRequestException(
-						Response.status (Status.BAD_REQUEST)
-								.entity (Messages.CREATE_USER_WITH_NON_UNIQUE_NAME)
-								.build ());
+						Response.status(Status.BAD_REQUEST)
+								.entity(Messages.CREATE_USER_WITH_NON_UNIQUE_NAME)
+								.build());
 			}
 
 			NewCookie cookie = makeCookie(null);
@@ -188,7 +189,7 @@ public class ConcertResource {
 			response.status(Status.CREATED);
 		} finally {
 			if (eManager != null && eManager.isOpen()) {
-				eManager.close ();
+				eManager.close();
 			}
 		}
 		return response;
@@ -197,7 +198,7 @@ public class ConcertResource {
 	@POST
 	@Path("/authenticate")
 	@Consumes({APPLICATION_XML})
-	@Produces({ APPLICATION_XML })
+	@Produces({APPLICATION_XML})
 	public Response authenticateUser(UserDTO uDto) {
 		_logger.info("Creating User");
 
@@ -207,9 +208,9 @@ public class ConcertResource {
 				|| uDto.getUsername() == null
 				) {
 			throw new NotAuthorizedException(
-					Response.status (Status.UNAUTHORIZED)
-							.entity (Messages.AUTHENTICATE_USER_WITH_MISSING_FIELDS)
-							.build ());
+					Response.status(Status.UNAUTHORIZED)
+							.entity(Messages.AUTHENTICATE_USER_WITH_MISSING_FIELDS)
+							.build());
 		}
 
 		Response response;
@@ -229,10 +230,10 @@ public class ConcertResource {
 
 			//condition: wrong password
 			boolean wrongPassword = !uQuery.getPassword().equals(uDto.getPassword());
-			if(wrongPassword){
+			if (wrongPassword) {
 				throw new NotAuthorizedException(Response
-						.status (Status.UNAUTHORIZED)
-						.entity (Messages.AUTHENTICATE_USER_WITH_ILLEGAL_PASSWORD)
+						.status(Status.UNAUTHORIZED)
+						.entity(Messages.AUTHENTICATE_USER_WITH_ILLEGAL_PASSWORD)
 						.build());
 			}
 
@@ -248,12 +249,12 @@ public class ConcertResource {
 			response = rBuilder.build();
 		} catch (NoResultException nre) {
 			throw new NotAuthorizedException(
-					Response.status (Status.UNAUTHORIZED)
-							.entity (Messages.AUTHENTICATE_NON_EXISTENT_USER)
-							.build ());
+					Response.status(Status.UNAUTHORIZED)
+							.entity(Messages.AUTHENTICATE_NON_EXISTENT_USER)
+							.build());
 		} finally {
 			if (eManager != null && eManager.isOpen()) {
-				eManager.close ();
+				eManager.close();
 			}
 		}
 		return response;
@@ -262,7 +263,7 @@ public class ConcertResource {
 	@POST
 	@Path("/reservation")
 	@Consumes({APPLICATION_XML})
-	@Produces({ APPLICATION_XML })
+	@Produces({APPLICATION_XML})
 	public Response makeReservation(ReservationRequestDTO dtoReservationRequest,
 									@CookieParam("clientId") Cookie clientId) {
 		//_logger.debug("makeReservation() "+dtoReservationRequest.toString()+ ", "+ clientId.toString());
@@ -273,13 +274,13 @@ public class ConcertResource {
 		try {
 			em = PersistenceManager.instance().createEntityManager();
 
-			if(dtoReservationRequest.getConcertId() == null
+			if (dtoReservationRequest.getConcertId() == null
 					|| dtoReservationRequest.getDate() == null
 					|| dtoReservationRequest.getNumberOfSeats() <= 0
-					|| dtoReservationRequest.getSeatType() == null){
+					|| dtoReservationRequest.getSeatType() == null) {
 				throw new BadRequestException(
-						Response.status (Status.BAD_REQUEST)
-								.entity (Messages.RESERVATION_REQUEST_WITH_MISSING_FIELDS)
+						Response.status(Status.BAD_REQUEST)
+								.entity(Messages.RESERVATION_REQUEST_WITH_MISSING_FIELDS)
 								.build());
 			}
 
@@ -295,7 +296,7 @@ public class ConcertResource {
 							+ Booking.class.getName()
 							+ " b where _cId = (:cId)"
 							+ " and _dateTime = (:date)"
-							+" and _priceBand = (:pBand)",
+							+ " and _priceBand = (:pBand)",
 					Booking.class);
 
 			bookingQuery.setParameter("cId",
@@ -317,15 +318,15 @@ public class ConcertResource {
 			em.getTransaction().commit();
 
 			boolean wrongDate = !concert.getDates().contains(dtoReservationRequest.getDate());
-			if(wrongDate){
+			if (wrongDate) {
 				throw new BadRequestException(Response
-						.status (Status.BAD_REQUEST)
-						.entity (Messages.CONCERT_NOT_SCHEDULED_ON_RESERVATION_DATE)
+						.status(Status.BAD_REQUEST)
+						.entity(Messages.CONCERT_NOT_SCHEDULED_ON_RESERVATION_DATE)
 						.build());
 			}
 
-			for(Booking booking : bookings){
-				for(Seat bookedSeat : booking.getSeats()){
+			for (Booking booking : bookings) {
+				for (Seat bookedSeat : booking.getSeats()) {
 					bookedSeats.add(bookedSeat);
 				}
 			}
@@ -333,32 +334,32 @@ public class ConcertResource {
 			Set<SeatRow> seatRows = TheatreLayout.getRowsForPriceBand(
 					dtoReservationRequest.getSeatType());
 
-			for(SeatRow row : seatRows){
+			for (SeatRow row : seatRows) {
 				int number_of_rows = TheatreLayout.getNumberOfSeatsForRow(row);
 
-				for(int i = 1; i < number_of_rows + 1; i++){
+				for (int i = 1; i < number_of_rows + 1; i++) {
 					Seat seat = new Seat(row, new SeatNumber(i));
 
-					if(!bookedSeats.contains(seat)){
+					if (!bookedSeats.contains(seat)) {
 						availableSeats.add(seat);
 					}
 				}
 			}
 
 			boolean insufficientSeats = availableSeats.size() < dtoReservationRequest.getNumberOfSeats();
-			if(insufficientSeats){
+			if (insufficientSeats) {
 				throw new BadRequestException(Response
-						.status (Status.BAD_REQUEST)
-						.entity (Messages.INSUFFICIENT_SEATS_AVAILABLE_FOR_RESERVATION)
+						.status(Status.BAD_REQUEST)
+						.entity(Messages.INSUFFICIENT_SEATS_AVAILABLE_FOR_RESERVATION)
 						.build());
 			}
 
 			int seatsToReserve = dtoReservationRequest.getNumberOfSeats();
-			for(Seat seat : availableSeats){
+			for (Seat seat : availableSeats) {
 				reservedSeats.add(seat);
 				seatsToReserve--;
 
-				if(seatsToReserve == 0){
+				if (seatsToReserve == 0) {
 					break;
 				}
 			}
@@ -401,7 +402,7 @@ public class ConcertResource {
 
 		} finally {
 			if (em != null && em.isOpen()) {
-				em.close ();
+				em.close();
 			}
 		}
 
@@ -433,15 +434,15 @@ public class ConcertResource {
 			CreditCard cCard = findUser.getCreditCard();
 			em.getTransaction().commit();
 
-			if(storedReservation == null){
+			if (storedReservation == null) {
 				_logger.debug(Messages.EXPIRED_RESERVATION);
 				throw new NotFoundException(
-						Response.status (Status.NOT_FOUND)
-						.entity (Messages.EXPIRED_RESERVATION)
-						.build());
+						Response.status(Status.NOT_FOUND)
+								.entity(Messages.EXPIRED_RESERVATION)
+								.build());
 			}
 
-			if(cCard == null){
+			if (cCard == null) {
 				_logger.debug(Messages.CREDIT_CARD_NOT_REGISTERED);
 
 				Long bId = storedReservation.getBookingId();
@@ -450,9 +451,9 @@ public class ConcertResource {
 						findUser.getUsername());
 
 				throw new BadRequestException(
-						Response.status (Status.BAD_REQUEST)
-						.entity(Messages.CREDIT_CARD_NOT_REGISTERED)
-						.build());
+						Response.status(Status.BAD_REQUEST)
+								.entity(Messages.CREDIT_CARD_NOT_REGISTERED)
+								.build());
 			}
 
 			storedReservation.setConfirmed(true);
@@ -468,7 +469,7 @@ public class ConcertResource {
 			response = Response.noContent();
 		} finally {
 			if (em != null && em.isOpen()) {
-				em.close ();
+				em.close();
 			}
 		}
 		return response.build();
@@ -477,7 +478,7 @@ public class ConcertResource {
 	@POST
 	@Path("/creditcard")
 	@Consumes({APPLICATION_XML})
-	@Produces({ APPLICATION_XML })
+	@Produces({APPLICATION_XML})
 	public Response registerCreditCard(
 			nz.ac.auckland.concert.common.dto.CreditCardDTO creditCardDTO,
 			@CookieParam("clientId") Cookie clientId) {
@@ -506,7 +507,7 @@ public class ConcertResource {
 
 		} finally {
 			if (em != null && em.isOpen()) {
-				em.close ();
+				em.close();
 			}
 		}
 
@@ -537,11 +538,11 @@ public class ConcertResource {
 
 			Set<BookingDTO> dtoBookings = new HashSet<>();
 
-			for(Reservation reservation : reservations){
+			for (Reservation reservation : reservations) {
 
 				Set<SeatDTO> sDtos = new HashSet<>();
 
-				for(Seat seat : reservation.getSeats()){
+				for (Seat seat : reservation.getSeats()) {
 					sDtos.add(
 							SeatMapper.toDto(seat));
 				}
@@ -556,12 +557,13 @@ public class ConcertResource {
 			}
 
 			GenericEntity<Set<BookingDTO>> entity =
-					new GenericEntity<Set<BookingDTO>>(dtoBookings) {};
+					new GenericEntity<Set<BookingDTO>>(dtoBookings) {
+					};
 
 			response = Response.ok().entity(entity);
 		} finally {
 			if (em != null && em.isOpen()) {
-				em.close ();
+				em.close();
 			}
 		}
 
@@ -571,10 +573,10 @@ public class ConcertResource {
 	/**
 	 * helper
 	 */
-	private NewCookie makeCookie(String clientId){
+	private NewCookie makeCookie(String clientId) {
 		NewCookie newCookie;
 
-		if(clientId == null) {
+		if (clientId == null) {
 			newCookie = new NewCookie(CLIENT_COOKIE, UUID.randomUUID().toString());
 			_logger.info("Generated new cookie: " + newCookie.getValue());
 		} else {
@@ -590,12 +592,12 @@ public class ConcertResource {
 	 * throws Exceptions
 	 */
 	private void authenticateCookie(Cookie cookie) {
-		if(cookie == null){
+		if (cookie == null) {
 			_logger.debug("Cookie is null");
 
 			throw new NotAuthorizedException(Response
-					.status (Status.UNAUTHORIZED)
-					.entity (Messages.UNAUTHENTICATED_REQUEST)
+					.status(Status.UNAUTHORIZED)
+					.entity(Messages.UNAUTHENTICATED_REQUEST)
 					.build());
 		}
 
@@ -613,12 +615,12 @@ public class ConcertResource {
 
 		String tokenKey = findUser.getToken();
 
-		if(!cookie.getName().equals(Config.CLIENT_COOKIE)
-				|| tokenKey == null){
+		if (!cookie.getName().equals(Config.CLIENT_COOKIE)
+				|| tokenKey == null) {
 			_logger.debug("BAD_AUTHENTICATON_TOKEN");
 			throw new NotAuthorizedException(Response
-					.status (Status.UNAUTHORIZED)
-					.entity (Messages.BAD_AUTHENTICATON_TOKEN)
+					.status(Status.UNAUTHORIZED)
+					.entity(Messages.BAD_AUTHENTICATON_TOKEN)
 					.build());
 		}
 
@@ -627,11 +629,12 @@ public class ConcertResource {
 
 	/**
 	 * helper
+	 *
 	 * @param reservationID
 	 * @param bookingID
 	 * @param username
 	 */
-	private void deleteExpiredReservation(Long reservationID, Long bookingID, String username){
+	private void deleteExpiredReservation(Long reservationID, Long bookingID, String username) {
 
 		Timer timer = new Timer();
 		timer.schedule(new TimerTask() {
@@ -650,13 +653,14 @@ public class ConcertResource {
 
 	/**
 	 * helper
+	 *
 	 * @param reservationID
 	 * @param bookingID
 	 * @param username
 	 */
 	private void deleteReservation(Long reservationID,
 								   Long bookingID,
-								   String username){
+								   String username) {
 		EntityManager em = null;
 		try {
 			em = PersistenceManager.instance().createEntityManager();
@@ -669,9 +673,9 @@ public class ConcertResource {
 
 			em.getTransaction().commit();
 
-			if(storedReservation != null){
+			if (storedReservation != null) {
 				boolean notConfirmed = !storedReservation.getCConfirmed();
-				if(notConfirmed){
+				if (notConfirmed) {
 					em.getTransaction().begin();
 
 					em.remove(storedReservation);
@@ -690,7 +694,7 @@ public class ConcertResource {
 			}
 		} finally {
 			if (em != null && em.isOpen()) {
-				em.close ();
+				em.close();
 			}
 		}
 	}
