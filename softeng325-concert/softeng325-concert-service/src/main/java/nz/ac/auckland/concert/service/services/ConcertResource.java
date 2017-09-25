@@ -637,7 +637,8 @@ public class ConcertResource {
 	private void deleteExpiredReservation(Long reservationID, Long bookingID, String username) {
 
 		Timer timer = new Timer();
-		timer.schedule(new TimerTask() {
+		timer.schedule(
+				new TimerTask() {
 
 			@Override
 			public void run() {
@@ -647,7 +648,8 @@ public class ConcertResource {
 				deleteReservation(reservationID, bookingID, username);
 
 			}
-		}, ConcertApplication.RESERVATION_EXPIRY_TIME_IN_SECONDS * 1000);
+		}
+		, ConcertApplication.RESERVATION_EXPIRY_TIME_IN_SECONDS * 1000);
 
 	}
 
