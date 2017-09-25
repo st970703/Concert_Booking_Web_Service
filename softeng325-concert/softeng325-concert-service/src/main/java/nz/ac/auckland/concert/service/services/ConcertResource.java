@@ -3,6 +3,7 @@ package nz.ac.auckland.concert.service.services;
 import nz.ac.auckland.concert.common.Config;
 import nz.ac.auckland.concert.common.dto.*;
 import nz.ac.auckland.concert.common.message.Messages;
+import nz.ac.auckland.concert.common.types.PriceBand;
 import nz.ac.auckland.concert.common.types.SeatNumber;
 import nz.ac.auckland.concert.common.types.SeatRow;
 import nz.ac.auckland.concert.common.util.TheatreLayout;
@@ -22,7 +23,11 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 import java.net.URI;
-import java.util.*;
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_XML;
 import static nz.ac.auckland.concert.common.Config.CLIENT_COOKIE;
@@ -68,7 +73,7 @@ public class ConcertResource {
 			}
 
 			//convert
-			Set<ConcertDTO> cDtos = new HashSet<ConcertDTO>();
+			Set<ConcertDTO> cDtos = new HashSet<>();
 			for (Concert c : concerts) {
 				cDtos.add(ConcertMapper.toDto(c));
 			}
@@ -78,7 +83,7 @@ public class ConcertResource {
 			};
 			builder = Response.ok(entity);
 
-			response = (Response) builder.build();
+			response = builder.build();
 		} finally {
 			if (eManager != null && eManager.isOpen()) {
 				eManager.close();
@@ -115,7 +120,7 @@ public class ConcertResource {
 			}
 
 			//convert
-			Set<PerformerDTO> pDtos = new HashSet<PerformerDTO>();
+			Set<PerformerDTO> pDtos = new HashSet<>();
 			for (Performer p : performers) {
 				pDtos.add(PerformerMapper.toDto(p));
 			}
@@ -125,7 +130,7 @@ public class ConcertResource {
 			};
 			builder = Response.ok(entity);
 
-			response = (Response) builder.build();
+			response = builder.build();
 
 		} finally {
 			if (eManager != null && eManager.isOpen()) {
@@ -147,10 +152,12 @@ public class ConcertResource {
 		Response response;
 
 		try {
+			String searchUserName = uDto.getUsername();
+
 			if (uDto.getFirstname() == null
 					|| uDto.getLastname() == null
 					|| uDto.getPassword() == null
-					|| uDto.getUsername() == null
+					|| searchUserName == null
 					) {
 				throw new BadRequestException(
 						Response.status(Status.BAD_REQUEST)
@@ -161,7 +168,7 @@ public class ConcertResource {
 			User newUser = UserMapper.toDomainModel(uDto);
 
 			eManager.getTransaction().begin();
-			User findUser = eManager.find(User.class, uDto.getUsername());
+			User findUser = eManager.find(User.class, searchUserName);
 			eManager.getTransaction().commit();
 
 			//Condition: the supplied username is already taken.
@@ -184,9 +191,9 @@ public class ConcertResource {
 
 			rBuilder.cookie(cookie);
 
-			response = (Response) rBuilder.build();
+			response = rBuilder.build();
 
-			response.status(Status.CREATED);
+			Response.status(Status.CREATED);
 		} finally {
 			if (eManager != null && eManager.isOpen()) {
 				eManager.close();
@@ -274,10 +281,14 @@ public class ConcertResource {
 		try {
 			eManager = PersistenceManager.instance().createEntityManager();
 
-			if (dtoReservationRequest.getConcertId() == null
-					|| dtoReservationRequest.getDate() == null
-					|| dtoReservationRequest.getNumberOfSeats() <= 0
-					|| dtoReservationRequest.getSeatType() == null) {
+			Long search_cId = dtoReservationRequest.getConcertId();
+
+			LocalDateTime reservationRequestDate = dtoReservationRequest.getDate();
+			PriceBand reservationRequestSeatType = dtoReservationRequest.getSeatType();
+			if (search_cId == null
+					|| reservationRequestDate == null
+					|| dtoReservationRequest.getNumberOfSeats() < 1
+					|| reservationRequestSeatType == null) {
 				throw new BadRequestException(
 						Response.status(Status.BAD_REQUEST)
 								.entity(Messages.RESERVATION_REQUEST_WITH_MISSING_FIELDS)
@@ -290,7 +301,7 @@ public class ConcertResource {
 
 			eManager.getTransaction().begin();
 
-			Concert concert = eManager.find(Concert.class, dtoReservationRequest.getConcertId());
+			Concert concert = eManager.find(Concert.class, search_cId);
 
 			TypedQuery<Booking> bookingQuery = eManager.createQuery("select b from "
 							+ Booking.class.getName()
@@ -300,11 +311,11 @@ public class ConcertResource {
 					Booking.class);
 
 			bookingQuery.setParameter("cId",
-					dtoReservationRequest.getConcertId());
+					search_cId);
 			bookingQuery.setParameter("date",
-					dtoReservationRequest.getDate());
+					reservationRequestDate);
 			bookingQuery.setParameter("pBand",
-					dtoReservationRequest.getSeatType());
+					reservationRequestSeatType);
 			List<Booking> bookings = bookingQuery.getResultList();
 
 			// get user associated with cookie
@@ -315,7 +326,7 @@ public class ConcertResource {
 
 			eManager.getTransaction().commit();
 
-			boolean wrongDate = !concert.getDates().contains(dtoReservationRequest.getDate());
+			boolean wrongDate = !concert.getDates().contains(reservationRequestDate);
 			if (wrongDate) {
 				throw new BadRequestException(Response
 						.status(Status.BAD_REQUEST)
@@ -330,7 +341,7 @@ public class ConcertResource {
 			}
 
 			Set<SeatRow> seatRows = TheatreLayout.getRowsForPriceBand(
-					dtoReservationRequest.getSeatType());
+					reservationRequestSeatType);
 
 			for (SeatRow row : seatRows) {
 				int number_of_rows = TheatreLayout.getNumberOfSeatsForRow(row);
@@ -363,17 +374,17 @@ public class ConcertResource {
 			}
 
 			Booking newBooking = new Booking(concert,
-					dtoReservationRequest.getDate(),
+					reservationRequestDate,
 					reservedSeats,
-					dtoReservationRequest.getSeatType());
+					reservationRequestSeatType);
 
 			eManager.getTransaction().begin();
 
 			eManager.persist(newBooking);
 
-			Reservation newReservation = new Reservation(dtoReservationRequest.getSeatType(),
+			Reservation newReservation = new Reservation(reservationRequestSeatType,
 					concert,
-					dtoReservationRequest.getDate(),
+					reservationRequestDate,
 					reservedSeats,
 					newBooking.getId());
 
@@ -413,7 +424,9 @@ public class ConcertResource {
 	@Produces(APPLICATION_XML)
 	public Response confirmReservation(nz.ac.auckland.concert.common.dto.ReservationDTO reservation, @CookieParam("clientId") Cookie clientId) {
 
-		_logger.debug("Start to confirm reservation: " + reservation.getId());
+		Long search_rId = reservation.getId();
+
+		_logger.debug("Start to confirm reservation: " + search_rId);
 
 		authenticateCookie(clientId);
 
@@ -423,12 +436,12 @@ public class ConcertResource {
 			eManager = PersistenceManager.instance().createEntityManager();
 
 			eManager.getTransaction().begin();
-			Long rId = reservation.getId();
+			Long rId = search_rId;
 			TypedQuery<User> userQuery = eManager
 					.createQuery("select u from User u where u._tokenKey = :token", User.class)
 					.setParameter("token", clientId.getValue());
 			User findUser = userQuery.getSingleResult();
-			Reservation storedReservation = eManager.find(Reservation.class, reservation.getId());
+			Reservation storedReservation = eManager.find(Reservation.class, search_rId);
 			CreditCard cCard = findUser.getCreditCard();
 			eManager.getTransaction().commit();
 
@@ -462,7 +475,7 @@ public class ConcertResource {
 
 			eManager.getTransaction().commit();
 
-			_logger.debug("Reservation " + reservation.getId() + " confirmed!");
+			_logger.debug("Reservation " + search_rId + " confirmed!");
 
 			response = Response.noContent();
 		} finally {
@@ -579,7 +592,6 @@ public class ConcertResource {
 //
 //	}
 
-
 	/**
 	 * helper
 	 */
@@ -644,23 +656,24 @@ public class ConcertResource {
 	 * @param bookingID
 	 * @param username
 	 */
-	private void deleteExpiredReservation(Long reservationID, Long bookingID, String username) {
+	private void deleteExpiredReservation(Long reservationID,
+										  Long bookingID,
+										  String username) {
+		Thread thread = new Thread(new Runnable() {
+			@Override
+			public void run() {
 
-		Timer timer = new Timer();
-		timer.schedule(
-				new TimerTask() {
-
-					@Override
-					public void run() {
-
-						_logger.debug("Checking reservation is confirmed!");
-
-						deleteReservation(reservationID, bookingID, username);
-
-					}
+				try {
+					Thread.sleep(ConcertApplication.RESERVATION_EXPIRY_TIME_IN_SECONDS * 1000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
 				}
-				, ConcertApplication.RESERVATION_EXPIRY_TIME_IN_SECONDS * 1000);
+				_logger.debug("Checking if reservation is confirmed!");
 
+				deleteReservation(reservationID, bookingID, username);
+			}
+		});
+		thread.start();
 	}
 
 	/**

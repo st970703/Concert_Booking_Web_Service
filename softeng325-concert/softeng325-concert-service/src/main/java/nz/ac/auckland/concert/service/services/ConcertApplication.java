@@ -35,43 +35,43 @@ public class ConcertApplication extends Application {
 	public ConcertApplication() {
 		_classes.add(ConcertResource.class);
 
-		EntityManager em = null;
+		EntityManager eManager = null;
 
 		try {
-			em = PersistenceManager.instance().createEntityManager();
-			em.getTransaction().begin();
+			eManager = PersistenceManager.instance().createEntityManager();
+			eManager.getTransaction().begin();
 
 			// Clear DB content
-			TypedQuery<Booking> bookingQuery = em.createQuery("select b from " + Booking.class.getName() + " b", Booking.class);
+			TypedQuery<Booking> bookingQuery = eManager.createQuery("select b from " + Booking.class.getName() + " b", Booking.class);
 			List<Booking> bookings = bookingQuery.getResultList();
 
 			for (Booking booking : bookings) {
-				em.remove(booking);
+				eManager.remove(booking);
 			}
 
-			TypedQuery<User> userQuery = em.createQuery("select u from " + User.class.getName() + " u", User.class);
+			TypedQuery<User> userQuery = eManager.createQuery("select u from " + User.class.getName() + " u", User.class);
 			List<User> users = userQuery.getResultList();
 
 			for (User user : users) {
-				em.remove(user);
+				eManager.remove(user);
 			}
 
-			TypedQuery<Reservation> reservationQuery = em.createQuery("select r from " + Reservation.class.getName() + " r", Reservation.class);
+			TypedQuery<Reservation> reservationQuery = eManager.createQuery("select r from " + Reservation.class.getName() + " r", Reservation.class);
 			List<Reservation> reservations = reservationQuery.getResultList();
 
 			for (Reservation reservation : reservations) {
-				em.remove(reservation);
+				eManager.remove(reservation);
 			}
 
-			em.flush();
-			em.clear();
-			em.getTransaction().commit();
+			eManager.flush();
+			eManager.clear();
+			eManager.getTransaction().commit();
 		} catch (Exception e) {
 			// Process and log the exception.
 			_logger.debug(e.getMessage());
 		} finally {
-			if (em != null && em.isOpen()) {
-				em.close();
+			if (eManager != null && eManager.isOpen()) {
+				eManager.close();
 			}
 		}
 	}
