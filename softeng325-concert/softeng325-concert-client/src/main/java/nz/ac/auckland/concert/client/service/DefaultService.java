@@ -239,7 +239,6 @@ public class DefaultService implements ConcertService {
 		return image;
 	}
 
-
 	@Override
 	public ReservationDTO reserveSeats(ReservationRequestDTO reservationRequest) throws ServiceException {
 		Client client = ClientBuilder.newClient();
