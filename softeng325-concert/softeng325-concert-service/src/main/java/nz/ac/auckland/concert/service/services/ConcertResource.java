@@ -581,17 +581,6 @@ public class ConcertResource {
 		return response.build();
 	}
 
-//	@GET
-//	@Path("/async")
-//	public void process(final @Suspended AsyncResponse response) {
-//		new Thread() {
-//			public void run() {
-//				response.response(result);
-//			}.start();
-//		}
-//
-//	}
-
 	/**
 	 * helper
 	 */
@@ -659,19 +648,15 @@ public class ConcertResource {
 	private void deleteExpiredReservation(Long reservationID,
 										  Long bookingID,
 										  String username) {
-		Thread thread = new Thread(new Runnable() {
-			@Override
-			public void run() {
-
-				try {
-					Thread.sleep(ConcertApplication.RESERVATION_EXPIRY_TIME_IN_SECONDS * 1000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				_logger.debug("Checking if reservation is confirmed!");
-
-				deleteReservation(reservationID, bookingID, username);
+		Thread thread = new Thread(() -> {
+			try {
+				Thread.sleep(ConcertApplication.RESERVATION_EXPIRY_TIME_IN_SECONDS * 1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
+			_logger.debug("Checking if reservation is confirmed!");
+
+			deleteReservation(reservationID, bookingID, username);
 		});
 		thread.start();
 	}
