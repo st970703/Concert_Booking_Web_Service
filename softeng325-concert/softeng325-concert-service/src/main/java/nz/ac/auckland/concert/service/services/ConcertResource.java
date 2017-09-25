@@ -269,10 +269,10 @@ public class ConcertResource {
 		//_logger.debug("makeReservation() "+dtoReservationRequest.toString()+ ", "+ clientId.toString());
 		authenticateCookie(clientId);
 
-		EntityManager em = null;
+		EntityManager eManager = null;
 		ResponseBuilder response;
 		try {
-			em = PersistenceManager.instance().createEntityManager();
+			eManager = PersistenceManager.instance().createEntityManager();
 
 			if (dtoReservationRequest.getConcertId() == null
 					|| dtoReservationRequest.getDate() == null
@@ -288,11 +288,11 @@ public class ConcertResource {
 			Set<Seat> availableSeats = new HashSet<>();
 			Set<Seat> reservedSeats = new HashSet<>();
 
-			em.getTransaction().begin();
+			eManager.getTransaction().begin();
 
-			Concert concert = em.find(Concert.class, dtoReservationRequest.getConcertId());
+			Concert concert = eManager.find(Concert.class, dtoReservationRequest.getConcertId());
 
-			TypedQuery<Booking> bookingQuery = em.createQuery("select b from "
+			TypedQuery<Booking> bookingQuery = eManager.createQuery("select b from "
 							+ Booking.class.getName()
 							+ " b where _cId = (:cId)"
 							+ " and _dateTime = (:date)"
@@ -308,14 +308,12 @@ public class ConcertResource {
 			List<Booking> bookings = bookingQuery.getResultList();
 
 			// get user associated with cookie
-			PersistenceManager pManager = PersistenceManager.instance();
-			EntityManager eManager = pManager.createEntityManager();
 			TypedQuery<User> userQuery = eManager
 					.createQuery("select u from User u where u._tokenKey = :token", User.class)
 					.setParameter("token", clientId.getValue());
 			User findUser = userQuery.getSingleResult();
 
-			em.getTransaction().commit();
+			eManager.getTransaction().commit();
 
 			boolean wrongDate = !concert.getDates().contains(dtoReservationRequest.getDate());
 			if (wrongDate) {
@@ -369,9 +367,9 @@ public class ConcertResource {
 					reservedSeats,
 					dtoReservationRequest.getSeatType());
 
-			em.getTransaction().begin();
+			eManager.getTransaction().begin();
 
-			em.persist(newBooking);
+			eManager.persist(newBooking);
 
 			Reservation newReservation = new Reservation(dtoReservationRequest.getSeatType(),
 					concert,
@@ -379,13 +377,13 @@ public class ConcertResource {
 					reservedSeats,
 					newBooking.getId());
 
-			em.persist(newReservation);
+			eManager.persist(newReservation);
 
 			findUser.addReservation(newReservation);
 
-			em.merge(findUser);
+			eManager.merge(findUser);
 
-			em.getTransaction().commit();
+			eManager.getTransaction().commit();
 
 			ReservationDTO dtoReservation = ReservationMapper.toDto(
 					newReservation,
@@ -401,8 +399,8 @@ public class ConcertResource {
 					findUser.getUsername());
 
 		} finally {
-			if (em != null && em.isOpen()) {
-				em.close();
+			if (eManager != null && eManager.isOpen()) {
+				eManager.close();
 			}
 		}
 
@@ -419,20 +417,20 @@ public class ConcertResource {
 
 		authenticateCookie(clientId);
 
-		EntityManager em = null;
+		EntityManager eManager = null;
 		ResponseBuilder response;
 		try {
-			em = PersistenceManager.instance().createEntityManager();
+			eManager = PersistenceManager.instance().createEntityManager();
 
-			em.getTransaction().begin();
+			eManager.getTransaction().begin();
 			Long rId = reservation.getId();
-			TypedQuery<User> userQuery = em
+			TypedQuery<User> userQuery = eManager
 					.createQuery("select u from User u where u._tokenKey = :token", User.class)
 					.setParameter("token", clientId.getValue());
 			User findUser = userQuery.getSingleResult();
-			Reservation storedReservation = em.find(Reservation.class, reservation.getId());
+			Reservation storedReservation = eManager.find(Reservation.class, reservation.getId());
 			CreditCard cCard = findUser.getCreditCard();
-			em.getTransaction().commit();
+			eManager.getTransaction().commit();
 
 			if (storedReservation == null) {
 				_logger.debug(Messages.EXPIRED_RESERVATION);
@@ -458,18 +456,18 @@ public class ConcertResource {
 
 			storedReservation.setConfirmed(true);
 
-			em.getTransaction().begin();
+			eManager.getTransaction().begin();
 
-			em.merge(storedReservation);
+			eManager.merge(storedReservation);
 
-			em.getTransaction().commit();
+			eManager.getTransaction().commit();
 
 			_logger.debug("Reservation " + reservation.getId() + " confirmed!");
 
 			response = Response.noContent();
 		} finally {
-			if (em != null && em.isOpen()) {
-				em.close();
+			if (eManager != null && eManager.isOpen()) {
+				eManager.close();
 			}
 		}
 		return response.build();
@@ -485,29 +483,29 @@ public class ConcertResource {
 
 		authenticateCookie(clientId);
 
-		EntityManager em = null;
+		EntityManager eManager = null;
 		ResponseBuilder response;
 
 		try {
-			em = PersistenceManager.instance().createEntityManager();
-			em.getTransaction().begin();
+			eManager = PersistenceManager.instance().createEntityManager();
+			eManager.getTransaction().begin();
 
 			String tokenKey = clientId.getValue();
 
-			TypedQuery<User> usertQuery = em.createQuery("select u from User u where u._tokenKey = :tKey", User.class)
+			TypedQuery<User> usertQuery = eManager.createQuery("select u from User u where u._tokenKey = :tKey", User.class)
 					.setParameter("tKey", tokenKey);
 			User user = usertQuery.getSingleResult();
 			_logger.debug("Found user with username " + user.getUsername());
 
 			user.setCreditCard(CreditCardMapper.toDomainModel(creditCardDTO));
-			em.merge(user);
-			em.getTransaction().commit();
+			eManager.merge(user);
+			eManager.getTransaction().commit();
 
 			response = Response.noContent();
 
 		} finally {
-			if (em != null && em.isOpen()) {
-				em.close();
+			if (eManager != null && eManager.isOpen()) {
+				eManager.close();
 			}
 		}
 
@@ -520,21 +518,21 @@ public class ConcertResource {
 	public Response getBookings(@CookieParam("clientId") Cookie clientId) {
 		authenticateCookie(clientId);
 
-		EntityManager em = null;
+		EntityManager eManager = null;
 		ResponseBuilder response;
 		try {
 
-			em = PersistenceManager.instance().createEntityManager();
+			eManager = PersistenceManager.instance().createEntityManager();
 
-			em.getTransaction().begin();
-			TypedQuery<User> userQuery = em
+			eManager.getTransaction().begin();
+			TypedQuery<User> userQuery = eManager
 					.createQuery(
 							"select u from User u where u._tokenKey = :token", User.class)
 					.setParameter("token", clientId.getValue());
 			User findUser = userQuery.getSingleResult();
 			Set<Reservation> reservations = findUser.getReservations();
 
-			em.getTransaction().commit();
+			eManager.getTransaction().commit();
 
 			Set<BookingDTO> dtoBookings = new HashSet<>();
 
@@ -562,13 +560,25 @@ public class ConcertResource {
 
 			response = Response.ok().entity(entity);
 		} finally {
-			if (em != null && em.isOpen()) {
-				em.close();
+			if (eManager != null && eManager.isOpen()) {
+				eManager.close();
 			}
 		}
 
 		return response.build();
 	}
+
+//	@GET
+//	@Path("/async")
+//	public void process(final @Suspended AsyncResponse response) {
+//		new Thread() {
+//			public void run() {
+//				response.response(result);
+//			}.start();
+//		}
+//
+//	}
+
 
 	/**
 	 * helper
@@ -640,16 +650,16 @@ public class ConcertResource {
 		timer.schedule(
 				new TimerTask() {
 
-			@Override
-			public void run() {
+					@Override
+					public void run() {
 
-				_logger.debug("Checking reservation is confirmed!");
+						_logger.debug("Checking reservation is confirmed!");
 
-				deleteReservation(reservationID, bookingID, username);
+						deleteReservation(reservationID, bookingID, username);
 
-			}
-		}
-		, ConcertApplication.RESERVATION_EXPIRY_TIME_IN_SECONDS * 1000);
+					}
+				}
+				, ConcertApplication.RESERVATION_EXPIRY_TIME_IN_SECONDS * 1000);
 
 	}
 
@@ -663,40 +673,41 @@ public class ConcertResource {
 	private void deleteReservation(Long reservationID,
 								   Long bookingID,
 								   String username) {
-		EntityManager em = null;
+		EntityManager eManager = null;
 		try {
-			em = PersistenceManager.instance().createEntityManager();
+			PersistenceManager pManager = PersistenceManager.instance();
+			eManager = pManager.createEntityManager();
 
-			em.getTransaction().begin();
+			eManager.getTransaction().begin();
 
-			Booking booking = em.find(Booking.class, bookingID);
+			Booking booking = eManager.find(Booking.class, bookingID);
 
-			Reservation storedReservation = em.find(Reservation.class, reservationID);
+			Reservation storedReservation = eManager.find(Reservation.class, reservationID);
 
-			em.getTransaction().commit();
+			eManager.getTransaction().commit();
 
 			if (storedReservation != null) {
 				boolean notConfirmed = !storedReservation.getCConfirmed();
 				if (notConfirmed) {
-					em.getTransaction().begin();
+					eManager.getTransaction().begin();
 
-					em.remove(storedReservation);
-					em.remove(booking);
+					eManager.remove(storedReservation);
+					eManager.remove(booking);
 
-					User user = em.find(User.class, username);
+					User user = eManager.find(User.class, username);
 
 					user.removeReservation(storedReservation);
 
-					em.merge(user);
+					eManager.merge(user);
 
 					_logger.debug("Deleted reservation with Id = " + reservationID);
 
-					em.getTransaction().commit();
+					eManager.getTransaction().commit();
 				}
 			}
 		} finally {
-			if (em != null && em.isOpen()) {
-				em.close();
+			if (eManager != null && eManager.isOpen()) {
+				eManager.close();
 			}
 		}
 	}
