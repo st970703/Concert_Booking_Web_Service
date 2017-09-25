@@ -23,19 +23,18 @@ import static org.junit.Assert.*;
 
 /**
  * Tests for a ConcertService implementation.
- *
+ * <p>
  * Prior to running each test, an embedded servlet container is started up that
- * hosts a named Web service. Immediately after each test, the servlet 
+ * hosts a named Web service. Immediately after each test, the servlet
  * container is stopped. Testing is handled in this way so that the Web service
- * can reinitialise its database. Since an embedded H2 database can only have 
- * one connection at a time, it's not possible for the @After method in this 
+ * can reinitialise its database. Since an embedded H2 database can only have
+ * one connection at a time, it's not possible for the @After method in this
  * Test class to connect to the H2 database to delete data - hence restarting
  * the Web service before each test allows the Web service to clear from the
- * database the effects of the tests. 
- *
+ * database the effects of the tests.
+ * <p>
  * This Test class references property RESERVATION_EXPIRY_TIME_IN_SECONDS,
  * defined in the Web service Application subclass, ConcertApplication.
- *
  */
 public class ConcertServiceTest {
 
@@ -103,8 +102,8 @@ public class ConcertServiceTest {
 		try {
 			UserDTO userDTO = new UserDTO("Bulldog", "123", "Churchill", "Winston");
 			_service.createUser(userDTO);
-		} catch(ServiceException e) {
-			_logger.debug("testCreateUser()"+e.getMessage());
+		} catch (ServiceException e) {
+			_logger.debug("testCreateUser()" + e.getMessage());
 			fail();
 		}
 	}
@@ -115,7 +114,7 @@ public class ConcertServiceTest {
 			UserDTO userDTO = new UserDTO(null, "123", "Churchill", "Winston");
 			_service.createUser(userDTO);
 			fail();
-		} catch(ServiceException e) {
+		} catch (ServiceException e) {
 			assertEquals(Messages.CREATE_USER_WITH_MISSING_FIELDS, e.getMessage());
 		}
 	}
@@ -131,8 +130,8 @@ public class ConcertServiceTest {
 			userDTO = new UserDTO("Bulldog", "123", "Thatcher", "Margaret");
 			_service.createUser(userDTO);
 			fail();
-		} catch(ServiceException e) {
-			if(!createdFirstUser) {
+		} catch (ServiceException e) {
+			if (!createdFirstUser) {
 				fail();
 			}
 			assertEquals(Messages.CREATE_USER_WITH_NON_UNIQUE_NAME, e.getMessage());
@@ -149,7 +148,7 @@ public class ConcertServiceTest {
 			UserDTO filledDTO = _service.authenticateUser(credentials);
 
 			assertEquals(userDTO, filledDTO);
-		} catch(ServiceException e) {
+		} catch (ServiceException e) {
 			fail();
 		}
 	}
@@ -160,7 +159,7 @@ public class ConcertServiceTest {
 			UserDTO credentials = new UserDTO("Bulldog", "123");
 			_service.authenticateUser(credentials);
 			fail();
-		} catch(ServiceException e) {
+		} catch (ServiceException e) {
 			assertEquals(Messages.AUTHENTICATE_NON_EXISTENT_USER, e.getMessage());
 		}
 	}
@@ -174,7 +173,7 @@ public class ConcertServiceTest {
 			UserDTO credentials = new UserDTO("Bulldog", "987");
 			_service.authenticateUser(credentials);
 			fail();
-		} catch(ServiceException e) {
+		} catch (ServiceException e) {
 			assertEquals(Messages.AUTHENTICATE_USER_WITH_ILLEGAL_PASSWORD, e.getMessage());
 		}
 	}
@@ -188,7 +187,7 @@ public class ConcertServiceTest {
 			UserDTO credentials = new UserDTO("Bulldog", null);
 			_service.authenticateUser(credentials);
 			fail();
-		} catch(ServiceException e) {
+		} catch (ServiceException e) {
 			assertEquals(Messages.AUTHENTICATE_USER_WITH_MISSING_FIELDS, e.getMessage());
 		}
 	}
@@ -213,12 +212,12 @@ public class ConcertServiceTest {
 			assertEquals(numberOfSeatsToBook, reservedSeats.size());
 
 			// Check that the seats reserved are of the required type.
-			for(SeatDTO seat : reservedSeats) {
+			for (SeatDTO seat : reservedSeats) {
 				assertTrue(TheatreLayout.getRowsForPriceBand(PriceBand.PriceBandC).contains(seat.getRow()));
 			}
 
-		} catch(ServiceException e) {
-			_logger.debug("testMakeReservation()"+e.getMessage());
+		} catch (ServiceException e) {
+			_logger.debug("testMakeReservation()" + e.getMessage());
 			fail();
 		}
 	}
@@ -234,7 +233,7 @@ public class ConcertServiceTest {
 
 			ReservationDTO reservation = _service.reserveSeats(request);
 			fail();
-		} catch(ServiceException e) {
+		} catch (ServiceException e) {
 			assertEquals(Messages.CONCERT_NOT_SCHEDULED_ON_RESERVATION_DATE, e.getMessage());
 		}
 	}
@@ -249,7 +248,7 @@ public class ConcertServiceTest {
 
 			ReservationDTO reservation = _service.reserveSeats(request);
 			fail();
-		} catch(ServiceException e) {
+		} catch (ServiceException e) {
 			assertEquals(Messages.UNAUTHENTICATED_REQUEST, e.getMessage());
 		}
 	}
@@ -281,8 +280,8 @@ public class ConcertServiceTest {
 			assertEquals(dateTime, bookingDTO.getDateTime());
 			assertEquals(reservation.getSeats(), bookingDTO.getSeats());
 			assertEquals(PriceBand.PriceBandC, bookingDTO.getPriceBand());
-		} catch(ServiceException e) {
-			_logger.debug("testConfirmReservation() e = "+e.getMessage());
+		} catch (ServiceException e) {
+			_logger.debug("testConfirmReservation() e = " + e.getMessage());
 			fail();
 		}
 	}
@@ -309,9 +308,9 @@ public class ConcertServiceTest {
 			// Attempt to confirm the reservation.
 			_service.confirmReservation(reservation);
 			fail();
-		} catch(ServiceException e) {
+		} catch (ServiceException e) {
 			assertEquals(Messages.EXPIRED_RESERVATION, e.getMessage());
-		} catch(InterruptedException e) {
+		} catch (InterruptedException e) {
 			e.printStackTrace();
 		} finally {
 			// Make a request to check that this user doesn't have a booking.
@@ -337,7 +336,7 @@ public class ConcertServiceTest {
 			// Attempt to confirm the reservation.
 			_service.confirmReservation(reservation);
 			fail();
-		} catch(ServiceException e) {
+		} catch (ServiceException e) {
 			assertEquals(Messages.CREDIT_CARD_NOT_REGISTERED, e.getMessage());
 		} finally {
 			// Make a request to check that this user doesn't have a booking.
@@ -354,7 +353,7 @@ public class ConcertServiceTest {
 
 			CreditCardDTO creditCard = new CreditCardDTO(CreditCardDTO.Type.Visa, "Winston Churchill", "4929-1500-0055-9544", LocalDate.of(2019, 7, 31));
 			_service.registerCreditCard(creditCard);
-		} catch(ServiceException e) {
+		} catch (ServiceException e) {
 			fail();
 		}
 	}
@@ -365,8 +364,15 @@ public class ConcertServiceTest {
 			CreditCardDTO creditCard = new CreditCardDTO(CreditCardDTO.Type.Visa, "Winston Churchill", "4929-1500-0055-9544", LocalDate.of(2019, 7, 31));
 			_service.registerCreditCard(creditCard);
 			fail();
-		} catch(ServiceException e) {
+		} catch (ServiceException e) {
 			assertEquals(Messages.UNAUTHENTICATED_REQUEST, e.getMessage());
 		}
+	}
+
+	@Test
+	public void testNewsItem() {
+		_service.subscribeForNewsItems(newsItem -> _logger.info("testNewsItem() " + newsItem.getContent()));
+
+		_service.cancelSubscription();
 	}
 }

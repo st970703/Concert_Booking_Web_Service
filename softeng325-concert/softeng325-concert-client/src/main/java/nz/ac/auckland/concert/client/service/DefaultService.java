@@ -17,10 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.*;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
@@ -386,12 +383,44 @@ public class DefaultService implements ConcertService {
 
 	@Override
 	public void subscribeForNewsItems(NewsItemListener listener) {
-		throw new UnsupportedOperationException();
+		Client client = ClientBuilder.newClient();
+
+		AsyncInvoker asyncInvoker = client
+				.target(WEB_SERVICE_URI + "/newsitem")
+				.request()
+				.async();
+
+		asyncInvoker.get(
+				new InvocationCallback<Response>() {
+
+					@Override
+					public void completed(Response response) {
+						NewsItemDTO newsItem = response.readEntity(NewsItemDTO.class);
+
+						listener.newsItemReceived(newsItem);
+						asyncInvoker.get(this);
+					}
+
+					@Override
+					public void failed(Throwable throwable) {
+						_logger.debug("public void failed(Throwable throwable) " + throwable.getMessage());
+					}
+				}
+		);
+
+		client.close();
 	}
 
 	@Override
 	public void cancelSubscription() {
-		throw new UnsupportedOperationException();
+		Client client = ClientBuilder.newClient();
+
+		AsyncInvoker asyncInvoker = client
+				.target(WEB_SERVICE_URI + "newsitem/unsubscribe")
+				.request()
+				.async();
+
+		client.close();
 	}
 
 	/**
