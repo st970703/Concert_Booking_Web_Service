@@ -25,7 +25,9 @@ public class Performer {
 	@Enumerated(EnumType.STRING)
 	private Genre _genre;
 
-	@ManyToMany(mappedBy = "_performers")
+	@ManyToMany(mappedBy = "_performers",
+			cascade = CascadeType.ALL,
+			fetch = FetchType.LAZY)
 	private Set<Concert> _concerts;
 
 	public Performer() {

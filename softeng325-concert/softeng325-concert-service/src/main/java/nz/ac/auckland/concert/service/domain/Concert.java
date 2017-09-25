@@ -37,7 +37,7 @@ public class Concert implements Comparable<Concert> {
 	@Column(name = "TICKET_PRICE")
 	private Map<PriceBand, BigDecimal> _tariff;
 
-	@ManyToMany(cascade = {CascadeType.PERSIST})
+	@ManyToMany(cascade = {CascadeType.PERSIST}, fetch = FetchType.LAZY)
 	@JoinTable(
 			name = "CONCERT_PERFORMER",
 			joinColumns = @JoinColumn(name = "CONCERT_ID"),
