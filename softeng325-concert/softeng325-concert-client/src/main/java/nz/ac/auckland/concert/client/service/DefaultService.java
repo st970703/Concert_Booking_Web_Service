@@ -404,6 +404,7 @@ public class DefaultService implements ConcertService {
 					@Override
 					public void failed(Throwable throwable) {
 						_logger.debug("public void failed(Throwable throwable) " + throwable.getMessage());
+						throw new ServiceException(Messages.SERVICE_COMMUNICATION_ERROR);
 					}
 				}
 		);

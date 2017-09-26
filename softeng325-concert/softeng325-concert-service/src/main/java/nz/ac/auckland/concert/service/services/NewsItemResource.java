@@ -43,7 +43,6 @@ public class NewsItemResource {
 
 		executor.execute(() -> {
 			EntityManager eManager = PersistenceManager.instance().createEntityManager();
-			;
 
 			try {
 
