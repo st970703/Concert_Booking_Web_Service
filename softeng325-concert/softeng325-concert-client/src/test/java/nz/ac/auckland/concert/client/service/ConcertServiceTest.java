@@ -371,7 +371,14 @@ public class ConcertServiceTest {
 
 	@Test
 	public void testNewsItem() {
+		NewsItemDTO newsItemDTO = new NewsItemDTO(1L, LocalDateTime.now(), "tesgting");
+
+		UserDTO userDTO = new UserDTO("Bulldog", "123", "Churchill", "Winston");
+		_service.createUser(userDTO);
+
 		_service.subscribeForNewsItems(newsItem -> _logger.info("testNewsItem() " + newsItem.getContent()));
+
+//		_service.send();
 
 		_service.cancelSubscription();
 	}

@@ -388,6 +388,7 @@ public class DefaultService implements ConcertService {
 		AsyncInvoker asyncInvoker = client
 				.target(WEB_SERVICE_URI + "/newsitem")
 				.request()
+				.cookie(_storedCookie)
 				.async();
 
 		asyncInvoker.get(
@@ -396,7 +397,7 @@ public class DefaultService implements ConcertService {
 					@Override
 					public void completed(Response response) {
 						NewsItemDTO newsItem = response.readEntity(NewsItemDTO.class);
-
+						
 						listener.newsItemReceived(newsItem);
 						asyncInvoker.get(this);
 					}
@@ -419,6 +420,7 @@ public class DefaultService implements ConcertService {
 		AsyncInvoker asyncInvoker = client
 				.target(WEB_SERVICE_URI + "newsitem/unsubscribe")
 				.request()
+				.cookie(_storedCookie)
 				.async();
 
 		_logger.info("cancelSubscription() "+asyncInvoker.get().toString());

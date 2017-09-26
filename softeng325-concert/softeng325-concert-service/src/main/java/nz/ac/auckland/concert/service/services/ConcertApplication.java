@@ -34,6 +34,7 @@ public class ConcertApplication extends Application {
 	// Constructor called by JAX−RS.
 	public ConcertApplication() {
 		_classes.add(ConcertResource.class);
+		_classes.add(NewsItemResource.class);
 
 		EntityManager eManager = null;
 
