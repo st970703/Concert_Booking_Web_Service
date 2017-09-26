@@ -34,7 +34,7 @@ public class ConcertApplication extends Application {
 	// Constructor called by JAX−RS.
 	public ConcertApplication() {
 		_classes.add(ConcertResource.class);
-		_classes.add(NewsItemResource.class);
+//		_classes.add(NewsItemResource.class);
 
 		EntityManager eManager = null;
 
@@ -89,6 +89,7 @@ public class ConcertApplication extends Application {
 	@Override
 	public Set<Object> getSingletons() {
 		_singletons.add(PersistenceManager.instance());
+		_singletons.add(NewsItemResource.instance());
 
 		// Return a Set containing an instance of ParoleeResource that will be
 		// used to process all incoming requests on Parolee resources.

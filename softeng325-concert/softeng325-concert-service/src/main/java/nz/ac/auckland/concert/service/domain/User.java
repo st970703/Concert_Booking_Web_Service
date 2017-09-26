@@ -28,8 +28,7 @@ public class User {
 		return _reservations;
 	}
 
-	@OneToMany(fetch = FetchType.EAGER,
-			cascade = CascadeType.ALL)
+	@OneToMany(cascade = CascadeType.ALL)
 	@JoinColumn(name = "RESERVATION")
 	private Set<Reservation> _reservations;
 

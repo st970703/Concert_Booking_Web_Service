@@ -18,12 +18,14 @@ import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import javax.ws.rs.client.*;
+import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -43,6 +45,8 @@ public class DefaultService implements ConcertService {
 	private static Logger _logger = LoggerFactory.getLogger(ConcertService.class);
 	private static String WEB_SERVICE_URI = "http://localhost:10000/services";
 	private NewCookie _storedCookie;
+
+	private Map<Integer, Image> _imgCache = new HashMap<>();
 
 	@Override
 	public Set<ConcertDTO> getConcerts() throws ServiceException {
@@ -189,6 +193,11 @@ public class DefaultService implements ConcertService {
 	public Image getImageForPerformer(PerformerDTO performer) throws ServiceException {
 		String name = performer.getImageName();
 
+		int key = performer.hashCode();
+		if (_imgCache.containsKey(key)) {
+			return _imgCache.get(key);
+		}
+
 		// Create download directory if it doesn't already exist.
 		File downloadDirectory = new File(DOWNLOAD_DIRECTORY);
 		downloadDirectory.mkdir();
@@ -229,6 +238,8 @@ public class DefaultService implements ConcertService {
 
 		try {
 			image = ImageIO.read(file);
+			// store in cache
+			_imgCache.put(key, image);
 		} catch (IOException e) {
 			throw new ServiceException(Messages.NO_IMAGE_FOR_PERFORMER);
 		}
@@ -385,19 +396,22 @@ public class DefaultService implements ConcertService {
 	public void subscribeForNewsItems(NewsItemListener listener) {
 		Client client = ClientBuilder.newClient();
 
+		Cookie newCookie = new Cookie(Config.CLIENT_COOKIE, this.hashCode()+"");
+
 		AsyncInvoker asyncInvoker = client
-				.target(WEB_SERVICE_URI + "/newsitem")
+				.target(WEB_SERVICE_URI + "/newsitem/subscribe")
 				.request()
-				.cookie(_storedCookie)
+				.cookie(newCookie)
 				.async();
 
 		asyncInvoker.get(
-				new InvocationCallback<Response>() {
+				new InvocationCallback<NewsItemDTO>() {
 
 					@Override
-					public void completed(Response response) {
-						NewsItemDTO newsItem = response.readEntity(NewsItemDTO.class);
-						
+					public void completed(NewsItemDTO nDto) {
+						_logger.debug("public void completed("+nDto);
+						NewsItemDTO newsItem = nDto;
+
 						listener.newsItemReceived(newsItem);
 						asyncInvoker.get(this);
 					}
@@ -409,8 +423,6 @@ public class DefaultService implements ConcertService {
 					}
 				}
 		);
-
-		client.close();
 	}
 
 	@Override
@@ -423,7 +435,7 @@ public class DefaultService implements ConcertService {
 				.cookie(_storedCookie)
 				.async();
 
-		_logger.info("cancelSubscription() "+asyncInvoker.get().toString());
+		_logger.info("cancelSubscription() "+asyncInvoker.toString());
 
 		client.close();
 	}

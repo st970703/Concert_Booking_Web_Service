@@ -1,15 +1,11 @@
 package nz.ac.auckland.concert.service.services;
 
-import nz.ac.auckland.concert.common.Config;
 import nz.ac.auckland.concert.common.dto.NewsItemDTO;
 import nz.ac.auckland.concert.service.domain.NewsItem;
-import nz.ac.auckland.concert.service.domain.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
-import javax.persistence.TypedQuery;
 import javax.ws.rs.*;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
@@ -27,6 +23,15 @@ import static javax.ws.rs.core.MediaType.APPLICATION_XML;
 @Path("/newsitem")
 public class NewsItemResource {
 
+	private static  NewsItemResource _instance = null;
+
+	public static NewsItemResource instance() {
+		if (_instance == null) {
+			_instance = new NewsItemResource();
+		}
+		return _instance;
+	}
+
 	private static Logger _logger = LoggerFactory
 			.getLogger(ConcertResource.class);
 
@@ -36,19 +41,23 @@ public class NewsItemResource {
 	HashMap<String, AsyncResponse> _responses = new HashMap<>();
 
 	@GET
-	@Path("")
-	public synchronized void subscribe(final @Suspended AsyncResponse response, @CookieParam("clientId") Cookie clientId) {
-		boolean authenticated = authenticateSubscriber(clientId);
+	@Path("/subscribe")
+	@Consumes(APPLICATION_XML)
+	@Produces(APPLICATION_XML)
+	public void subscribe(@Suspended AsyncResponse response, @CookieParam("clientId") Cookie clientId) {
+		_logger.debug("void subscribe( "+response +", "+clientId.getValue());
 
-		if (authenticated) {
-			_responses.put(clientId.getValue(),response);
-		}
+		_responses.put(clientId.getValue(),response);
+		_logger.debug("_responses.toString() "+_responses.toString());
 	}
 
 	@POST
 	@Path("")
 	@Consumes(APPLICATION_XML)
-	public synchronized void send(NewsItemDTO nDto) {
+	@Produces(APPLICATION_XML)
+	public /*synchronized*/ void send(NewsItemDTO nDto) {
+		_logger.debug("void send( "+nDto.getContent());
+
 		NewsItem nItem = NewsItemMapper.toDomainModel(nDto);
 
 		executor.execute(() -> {
@@ -84,43 +93,9 @@ public class NewsItemResource {
 
 	@GET
 	@Path("/unsubscribe")
-	public synchronized void unsubscribe(@CookieParam("clientId") Cookie clientId) {
-		boolean authenticated = authenticateSubscriber(clientId);
-
-		if (authenticated) {
-			_responses.remove(clientId.getValue());
-		}
-	}
-
-	private boolean authenticateSubscriber(Cookie cookie) {
-		if (cookie == null) {
-			return false;
-		}
-
-		try {
-			PersistenceManager pManager = PersistenceManager.instance();
-			EntityManager eManager = pManager.createEntityManager();
-
-			eManager.getTransaction().begin();
-
-			TypedQuery<User> userQuery = eManager
-					.createQuery("select u from User u where u._tokenKey = :token", User.class)
-					.setParameter("token", cookie.getValue());
-			User findUser = userQuery.getSingleResult();
-
-			eManager.getTransaction().commit();
-
-			String tokenKey = findUser.getToken();
-
-			if (!cookie.getName().equals(Config.CLIENT_COOKIE)
-					|| tokenKey == null) {
-				return false;
-			}
-		} catch (NoResultException e) {
-			_logger.debug(e.getMessage());
-			return false;
-		}
-
-		return true;
+	@Consumes(APPLICATION_XML)
+	@Produces(APPLICATION_XML)
+	public /*synchronized*/ void unsubscribe(@CookieParam("clientId") Cookie clientId) {
+		_responses.remove(clientId.getValue());
 	}
 }

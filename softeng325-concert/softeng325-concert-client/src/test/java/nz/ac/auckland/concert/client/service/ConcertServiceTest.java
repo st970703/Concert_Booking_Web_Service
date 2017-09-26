@@ -376,9 +376,11 @@ public class ConcertServiceTest {
 		UserDTO userDTO = new UserDTO("Bulldog", "123", "Churchill", "Winston");
 		_service.createUser(userDTO);
 
-		_service.subscribeForNewsItems(newsItem -> _logger.info("testNewsItem() " + newsItem.getContent()));
+		NewsItemListenerImp newsItemListener = new NewsItemListenerImp();
+		_service.subscribeForNewsItems(
+				newsItemListener);
 
-//		_service.send();
+//_service.sendNew();
 
 		_service.cancelSubscription();
 	}
