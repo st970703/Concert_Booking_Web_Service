@@ -421,6 +421,8 @@ public class DefaultService implements ConcertService {
 				.request()
 				.async();
 
+		_logger.info("cancelSubscription() "+asyncInvoker.get().toString());
+
 		client.close();
 	}
 
