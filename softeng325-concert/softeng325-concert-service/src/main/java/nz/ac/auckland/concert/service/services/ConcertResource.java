@@ -43,6 +43,8 @@ public class ConcertResource {
 	private static Logger _logger = LoggerFactory
 			.getLogger(ConcertResource.class);
 
+	private static Thread _thread;
+
 	@GET
 	@Path("/concerts")
 	@Produces({APPLICATION_XML})
@@ -648,17 +650,21 @@ public class ConcertResource {
 	private void deleteExpiredReservation(Long reservationID,
 										  Long bookingID,
 										  String username) {
-		Thread thread = new Thread(() -> {
-			try {
-				Thread.sleep(ConcertApplication.RESERVATION_EXPIRY_TIME_IN_SECONDS * 1000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			_logger.debug("Checking if reservation is confirmed!");
+		_thread = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					Thread.sleep(ConcertApplication.RESERVATION_EXPIRY_TIME_IN_SECONDS * 1000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				_logger.debug("Checking if reservation is confirmed!");
 
-			deleteReservation(reservationID, bookingID, username);
+				ConcertResource.this.deleteReservation(reservationID, bookingID, username);
+			}
 		});
-		thread.start();
+
+		_thread.start();
 	}
 
 	/**

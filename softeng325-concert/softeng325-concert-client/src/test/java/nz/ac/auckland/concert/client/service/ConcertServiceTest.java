@@ -369,19 +369,19 @@ public class ConcertServiceTest {
 		}
 	}
 
-	@Test
-	public void testNewsItem() {
-		NewsItemDTO newsItemDTO = new NewsItemDTO(1L, LocalDateTime.now(), "tesgting");
-
-		UserDTO userDTO = new UserDTO("Bulldog", "123", "Churchill", "Winston");
-		_service.createUser(userDTO);
-
-		NewsItemListenerImp newsItemListener = new NewsItemListenerImp();
-		_service.subscribeForNewsItems(
-				newsItemListener);
-
-//_service.sendNew();
-
-		_service.cancelSubscription();
-	}
+//	@Test
+//	public void testNewsItem() {
+//		NewsItemDTO newsItemDTO = new NewsItemDTO(1L, LocalDateTime.now(), "tesgting");
+//
+//		UserDTO userDTO = new UserDTO("Bulldog", "123", "Churchill", "Winston");
+//		_service.createUser(userDTO);
+//
+//		NewsItemListenerImp newsItemListener = new NewsItemListenerImp();
+//		_service.subscribeForNewsItems(
+//				newsItemListener);
+//
+////_service.sendNew();
+//
+//		_service.cancelSubscription();
+//	}
 }
