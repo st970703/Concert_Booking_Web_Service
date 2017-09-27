@@ -1,11 +1,15 @@
 package nz.ac.auckland.concert.service.services;
 
 import nz.ac.auckland.concert.common.dto.NewsItemDTO;
+import nz.ac.auckland.concert.common.message.Messages;
 import nz.ac.auckland.concert.service.domain.NewsItem;
+import nz.ac.auckland.concert.service.domain.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+import javax.persistence.TypedQuery;
 import javax.ws.rs.*;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
@@ -88,7 +92,7 @@ public class NewsItemResource {
 			aResponse.resume(response);
 		}
 
-		_responses.clear();
+		return;
 	}
 
 	@GET
@@ -96,6 +100,28 @@ public class NewsItemResource {
 	@Consumes(APPLICATION_XML)
 	@Produces(APPLICATION_XML)
 	public /*synchronized*/ void unsubscribe(@CookieParam("clientId") Cookie clientId) {
+		EntityManager eManager = PersistenceManager.instance().createEntityManager();
+
+		TypedQuery<User> userCookieQuery = eManager.createQuery(
+				"select u from User u where u._tokenKey = t", User.class)
+				.setParameter("t",clientId.getValue());
+
+		User foundUser = null;
+		try {
+			foundUser = userCookieQuery.getSingleResult();
+		} catch (NoResultException e){
+			throw new NotAllowedException(
+					Response.status(Response.Status.METHOD_NOT_ALLOWED)
+							.entity(Messages.BAD_AUTHENTICATON_TOKEN)
+							.build());
+		}
+
+		eManager.getTransaction().begin();
+		eManager.merge(foundUser);
+		eManager.getTransaction().commit();
+
+		eManager.close();
+
 		_responses.remove(clientId.getValue());
 	}
 }
